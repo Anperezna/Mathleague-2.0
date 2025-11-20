@@ -15,41 +15,30 @@
 @endpush
 
 @section('content')
-<div class="min-h-screen w-full flex justify-center items-center">
+<div class="min-h-screen w-full flex flex-col">
 
-    <div class="flex gap-20 justify-center items-center w-full max-w-[110rem] px-16
-        max-xl:gap-16 max-xl:px-12
-        max-md:flex-col max-md:gap-8 max-md:px-6 max-md:py-10">
+    <!-- NAVBAR -->
+    <x-navbar bg_color="#111111" marginTop="mt-0" marginBottom="mb-0">
+        <x-botones text="APRENDIZAJE" href="{{ route('aprendizaje') }}" color="transparent" border_color="transparent" text_color="#fff" size="lg" height="large"></x-botones>
+        <x-botones text="JUEGOS" href="{{ route('juegos') }}" color="transparent" border_color="transparent" text_color="#fff" size="lg" height="large"></x-botones>
+        <x-botones text="SOBRE NOSOTROS" href="{{ route('about') }}" color="transparent" border_color="transparent" text_color="#fff" size="lg" height="large"></x-botones>
+        <x-botones text="PERFIL" href="{{ route('perfil') }}" color="transparent" border_color="transparent" text_color="#fff" size="lg" height="large"></x-botones>
+    </x-navbar>
 
-        <!-- STORY TEXT -->
-        <div class="flex-[1.5] max-md:max-w-full">
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex justify-center items-center">
 
-            <x-hero-title text="Math League" />
+        <div class="flex gap-20 justify-center items-center w-full max-w-[110rem] px-16
+            max-xl:gap-16 max-xl:px-12
+            max-md:flex-col max-md:gap-8 max-md:px-6 max-md:py-10">
 
-            <x-story-paragraph>
-                Bienvenido a Math League, donde las matemáticas y el fútbol se unen en una
-                experiencia única. Como entrenador, vivirás un día de partido completo resolviendo
-                operaciones matemáticas en cada etapa.
-            </x-story-paragraph>
+            <!-- STORY TEXT -->
+            <x-texto-index />
 
-            <x-story-paragraph>
-                Recogerás a tus jugadores en el autobús identificando sus números de camiseta
-                mediante cálculos. Ayudarás a Paco a preparar el campo con la cortacésped siguiendo
-                patrones matemáticos. Jugarás el partido donde cada jugada depende de resolver
-                operaciones bajo presión. Y finalmente, responderás a la prensa analizando las
-                estadísticas del encuentro.
-            </x-story-paragraph>
-
-            <x-story-paragraph>
-                ¿Estás listo para liderar al Math League? La liga donde los números ganan partidos te espera.
-            </x-story-paragraph>
-
-            <x-primary-button href="{{ route('juegos') }}" text="¡Comenzar!" />
+            <!-- LOGO -->
+            <x-animated-logo />
 
         </div>
-
-        <!-- LOGO -->
-        <x-animated-logo />
 
     </div>
 
