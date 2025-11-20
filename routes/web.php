@@ -6,34 +6,34 @@ Route::get('/', function () {
     return view('index');
 })->name('index');
 
-Route::get('/', function () {
+Route::get('/login', function () {
     return view('login');
-});
+})->name('login');
 
-Route::get('/', function () {
+Route::get('/register', function () {
     return view('register');
-});
+})->name('register');
 
-Route::get('/', function () {
+Route::get('/mathbus', function () {
     return view('mathbus');
-});
+})->name('mathbus');
 
-Route::get('/', function () {
+Route::get('/mathmatch', function () {
     return view('mathmatch');
-});
+})->name('mathmatch');
 
-Route::get('/', function () {
+Route::get('/cortacesped', function () {
     return view('cortacesped');
-});
+})->name('cortacesped');
 
-Route::get('/', function () {
+Route::get('/entrevista', function () {
     return view('entrevista');
-});
+})->name('entrevista');
 
-Route::get('/', function () {
+Route::get('/perfil', function () {
     return view('perfil');
-});
+})->name('perfil');
 
-Route::get('/', function () {
+Route::get('/juegos', function () {
     return view('juegos');
-});
+})->name('juegos');
