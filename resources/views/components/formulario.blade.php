@@ -27,7 +27,7 @@
 </form>
 @elseif (request()->routeIs('register'))
     {{-- Formulario de registro --}}
-    <form action="" class="flex {{ $flexDirection }} {{ $alignItems }} {{ $justifyContent }} {{ $width }} {{ $height }} {{ $bg_color }} {{ $border_color }} p-6 rounded-lg shadow">
+    <form action="{{ route('register.submit') }}" method="POST" class="flex {{ $flexDirection }} {{ $alignItems }} {{ $justifyContent }} {{ $width }} {{ $height }} {{ $bg_color }} {{ $border_color }} p-6 rounded-lg shadow">
     <h1 class="{{ $text_size }}">Register</h1>
     <br>
     <label class="mb-2 font-semibold text-lg">Nombre de usuario:</label>
