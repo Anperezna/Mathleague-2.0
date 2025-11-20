@@ -16,7 +16,7 @@
     </script>
 </head>
 
-<body class="bg-[#111111] h-screen overflow-hidden">
+<body class="h-screen overflow-hidden">
     @yield('content')
 </body>
 
