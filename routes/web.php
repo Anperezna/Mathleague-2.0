@@ -37,3 +37,11 @@ Route::get('/perfil', function () {
 Route::get('/juegos', function () {
     return view('juegos');
 })->name('juegos');
+
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/aprendizaje', function () {
+    return view('aprendizaje');
+})->name('aprendizaje');
