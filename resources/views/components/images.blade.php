@@ -1,9 +1,9 @@
 @php
     $juegos = [
-        ['fondos' => 'mathbus.png', 'ruta' => 'mathbus'],
-        ['fondos' => 'manolo.png', 'ruta' => 'cortacesped'],
-        ['fondos' => 'mathmatch.png', 'ruta' => 'mathmatch'],
-        ['fondos' => 'mathentrevista.png', 'ruta' => 'entrevista'],
+        ['fondos' => 'mathbus.png', 'ruta' => 'mathbus', 'idJuego' => 1],
+        ['fondos' => 'manolo.png', 'ruta' => 'cortacesped', 'idJuego' => 2],
+        ['fondos' => 'mathmatch.png', 'ruta' => 'mathmatch', 'idJuego' => 3],
+        ['fondos' => 'mathentrevista.png', 'ruta' => 'entrevista', 'idJuego' => 4],
     ];
 @endphp
 
@@ -11,7 +11,7 @@
     @foreach (collect($juegos)->chunk(2) as $chunk)
         <div class="flex flex-wrap gap-10 justify-center items-center w-full">
             @foreach ($chunk as $juego)
-                <a href="{{ route($juego['ruta']) }}" class="hover:opacity-80 hover:scale-105 transition-all duration-200 ease-in-out">
+                <a href="{{ route($juego['ruta'], ['idJuego' => $juego['idJuego']]) }}" class="hover:opacity-80 hover:scale-105 transition-all duration-200 ease-in-out">
                     <img 
                         src="{{ asset('img/juegos/' . $juego['fondos']) }}" 
                         alt="{{ $juego['fondos'] }}" 

@@ -14,11 +14,11 @@ Route::get('/register', function () {
     return view('register');
 })->name('register');
 
-Route::get('/mathbus', function () {
-    return view('mathbus');
-})->name('mathbus');
-
 Route::get('/mathbus/{idJuego}', [App\Http\Controllers\PreguntasController::class, 'index'])->name('mathbus');
+
+Route::get('/mathmatch', function () {
+    return view('mathmatch');
+})->name('mathmatch');
 
 Route::get('/cortacesped', function () {
     return view('cortacesped');
