@@ -25,9 +25,9 @@
         </div>
 
         <!-- ========== JUEGO ========== -->
-
-        <x-navbarjuegos></x-navbarjuegos>
+        
         <div id="gameScreen" class="absolute inset-0 hidden">
+        <x-navbarjuegos></x-navbarjuegos>
 
             <!-- Header -->
             <div class="flex justify-between items-center p-4 bg-white shadow rounded">

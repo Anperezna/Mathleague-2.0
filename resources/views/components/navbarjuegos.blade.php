@@ -6,6 +6,6 @@
     'marginBottom' => 'mb-5',
 ])
 
-<nav class="flex items-left justify-between px-6 {{ $width }} {{ $height }} bg-[{{ $bg_color }} ] {{ $marginBottom }} {{ $marginTop }}">
-    <img src="img/logo.png" alt="">
+<nav class="fixed top-0 left-0 px-6 {{ $width }} {{ $height }} bg-[{{ $bg_color }} ] {{ $marginBottom }} {{ $marginTop }}">
+    <img src="{{ asset('img/logo.png') }}" alt="Logo" class="w-[180px]">
 </nav>
