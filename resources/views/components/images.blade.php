@@ -1,7 +1,7 @@
 @php
     $juegos = [
-        ['fondos' => 'mathbus.png', 'ruta' => 'cortacesped'],
-        ['fondos' => 'manolo.png', 'ruta' => 'mathbus'],
+        ['fondos' => 'mathbus.png', 'ruta' => 'mathbus'],
+        ['fondos' => 'manolo.png', 'ruta' => 'cortacesped'],
         ['fondos' => 'mathmatch.png', 'ruta' => 'mathmatch'],
         ['fondos' => 'mathentrevista.png', 'ruta' => 'entrevista'],
     ];
