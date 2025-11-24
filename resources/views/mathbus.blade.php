@@ -25,6 +25,8 @@
         </div>
 
         <!-- ========== JUEGO ========== -->
+
+        <x-navbarjuegos></x-navbarjuegos>
         <div id="gameScreen" class="absolute inset-0 hidden">
 
             <!-- Header -->
