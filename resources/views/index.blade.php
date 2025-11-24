@@ -39,7 +39,6 @@
             <x-animated-logo />
 
         </div>
-
     </div>
 
 </div>
