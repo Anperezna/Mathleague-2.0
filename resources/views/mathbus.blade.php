@@ -7,16 +7,16 @@
 
         <!-- ========== MENÚ ========== -->
         <div id="menuScreen" class="absolute inset-0 flex flex-col justify-center items-center text-center space-y-6">
-            <img src="{{ asset('img/mathbus/mathbus_game.png') }}" class="w-72">
+            <img src="{{ asset('img/juegos/mathbus.png') }}" class="w-72 rounded-lg shadow-lg">
 
             <p class="text-lg">¡Mueve el bus con las flechas ↑ ↓ para recoger las respuestas correctas!</p>
 
             <button onclick="game.start()" 
                 class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow">
-                Iniciar Juego
+                <p></p>    Iniciar Juego
             </button>
 
-            <div class="text-sm text-gray-700 space-y-1">
+            <div class="text-gray-700 space-y-1">
                 <p>📝 Usa las teclas ↑ y ↓ para mover el bus</p>
                 <p>🎯 Recoge la respuesta correcta</p>
                 <p>❌ El juego termina después de 3 fallos</p>
@@ -31,9 +31,7 @@
             <div class="flex justify-between items-center p-4 bg-white shadow rounded">
                 <div class="flex items-center space-x-3">
                     <img src="{{ asset('img/mathbus/mathbus_game.png') }}" class="h-12">
-                    <a href="{{ route('juegos') }}">
-                        <img src="{{ asset('img/back.png') }}" class="h-10 hover:scale-110 transition">
-                    </a>
+                    
                 </div>
 
                 <div id="operationDisplay" class="text-2xl font-bold text-blue-700">
