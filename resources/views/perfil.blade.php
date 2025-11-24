@@ -1,39 +1,46 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-5xl mx-auto p-6">
+<div class="min-h-screen w-full bg-[url('/img/fondo.png')] bg-cover bg-center flex flex-col">
+    
+    <!-- NAVBAR -->
+    <x-navbar bg_color="transparent" marginTop="mt-0" marginBottom="mb-0" />
 
-    <!-- Header del perfil -->
-    <x-profile-header :username="session('username', 'Usuario')" />
+    <!-- CONTENIDO DEL PERFIL -->
+    <div class="flex-1 max-w-5xl mx-auto p-6 w-full">
 
-    <h2 class="text-2xl font-bold mt-8 mb-4">Estadísticas</h2>
+        <!-- Header del perfil -->
+        <x-profile-header :username="session('username', 'Usuario')" />
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+        <h2 class="text-2xl font-bold mt-8 mb-4 text-white">Estadísticas</h2>
 
-        <!-- Juego 1: Autobús -->
-        <x-game-stats-card 
-            title="El Autobús"
-            image="img/juegos/mathbus.png"
-        />
+        <div class="flex gap-x-[5rem] justify-center">
 
-        <!-- Juego 2: Paco y la Cortacésped -->
-        <x-game-stats-card 
-            title="Paco y la Cortacésped"
-            image="img/juegos/manolo.png"
-        />
+            <!-- Juego 1: Autobús -->
+            <x-game-stats-card 
+                title="El Autobús"
+                image="img/juegos/mathbus.png"
+            />
 
-        <!-- Juego 3: Partido de Fútbol -->
-        <x-game-stats-card 
-            title="Partido de Fútbol"
-            image="img/juegos/mathmatch.png"
-        />
+            <!-- Juego 2: Paco y la Cortacésped -->
+            <x-game-stats-card 
+                title="Paco y la Cortacésped"
+                image="img/juegos/manolo.png"
+            />
 
-        <!-- Juego 4: Entrevista Postpartido -->
-        <x-game-stats-card 
-            title="Entrevista Postpartido"
-            image="img/juegos/mathentrevista.png"
-        />
+            <!-- Juego 3: Partido de Fútbol -->
+            <x-game-stats-card 
+                title="Partido de Fútbol"
+                image="img/juegos/mathmatch.png"
+            />
 
+            <!-- Juego 4: Entrevista Postpartido -->
+            <x-game-stats-card 
+                title="Entrevista Postpartido"
+                image="img/juegos/mathentrevista.png"
+            />
+
+        </div>
     </div>
 </div>
 @endsection
