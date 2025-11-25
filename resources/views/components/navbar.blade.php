@@ -12,6 +12,7 @@
     <x-botones text="JUEGOS" href="{{ route('juegos') }}" color="#transparent" border_color="transparent" text_color="#000" size="lg" height="large">
 
     </x-botones>
+    <img src="img/logo.png" alt="" class="w-[180px]">
     <x-botones text="SOBRE NOSOTROS" href="{{ route('about') }}" color="#transparent" border_color="transparent" text_color="#000" size="lg" height="large">
 
     </x-botones>

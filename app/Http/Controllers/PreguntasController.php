@@ -10,9 +10,11 @@ class PreguntasController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($idJuego)
     {
         //
+        $preguntas = Preguntas::where('id_juego', $idJuego)->get();
+        return view('mathbus', compact('preguntas'));
     }
 
     /**
