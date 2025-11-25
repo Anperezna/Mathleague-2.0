@@ -2,14 +2,14 @@ const game = {
     bus: null,
     gameArea: null,
     operationDisplay: null,
-    scoreEl: null,
-    missedEl: null,
+    puntosEl: null,
+    fallosEl: null,
 
     busY: 150,
-    speed: 4,
-    score: 0,
-    missed: 0,
-    maxMissed: 3,
+    velocidad: 4,
+    puntos: 0,
+    fallos: 0,
+    maxfallos: 3,
 
     activeAnswers: [],
     gameInterval: null,
@@ -25,15 +25,15 @@ const game = {
         this.bus = document.getElementById("bus");
         this.gameArea = document.getElementById("gameArea");
         this.operationDisplay = document.getElementById("operationDisplay");
-        this.scoreEl = document.getElementById("score");
-        this.missedEl = document.getElementById("missed");
+        this.puntosEl = document.getElementById("puntos");
+        this.fallosEl = document.getElementById("fallos");
 
         this.valoresReset();
-        this.generateOperation();
-        this.enableControls();
+        this.generarOperacion();
+        this.controles();
 
-        this.gameInterval = setInterval(() => this.updateGame(), 20);
-        this.spawnInterval = setInterval(() => this.spawnAnswer(), 1500);
+        this.gameInterval = setInterval(() => this.actualizarJuego(), 20);
+        this.spawnInterval = setInterval(() => this.crearRespuesta(), 1500);
     },
 
     reset() {
@@ -42,23 +42,23 @@ const game = {
 
     valoresReset() {
         this.busY = 150;
-        this.score = 0;
-        this.missed = 0;
+        this.puntos = 0;
+        this.fallos = 0;
         this.activeAnswers = [];
-        this.scoreEl.textContent = "0";
-        this.missedEl.textContent = "0";
+        this.puntosEl.textContent = "0";
+        this.fallosEl.textContent = "0";
     },
 
-    enableControls() {
+    controles() {
         document.onkeydown = (e) => {
-            if (e.key === "ArrowUp") this.busY -= this.speed * 6;
-            if (e.key === "ArrowDown") this.busY += this.speed * 6;
+            if (e.key === "ArrowUp") this.busY -= this.velocidad * 6;
+            if (e.key === "ArrowDown") this.busY += this.velocidad * 6;
             this.busY = Math.max(0, Math.min(this.busY, this.gameArea.clientHeight - 80));
             this.bus.style.top = this.busY + "px";
         };
     },
 
-    generateOperation() {
+    generarOperacion() {
         let a = Math.floor(Math.random() * 10) + 1;
         let b = Math.floor(Math.random() * 10) + 1;
 
@@ -67,7 +67,7 @@ const game = {
         this.operationDisplay.textContent = this.currentOperation;
     },
 
-    spawnAnswer() {
+    crearRespuesta() {
         const isCorrect = Math.random() < 0.4; // 40% probabilidad de ser la correcta
         const value = isCorrect
             ? this.correctAnswer
@@ -86,7 +86,7 @@ const game = {
         this.activeAnswers.push(answer);
     },
 
-    updateGame() {
+    actualizarJuego() {
         let busRect = this.bus.getBoundingClientRect();
 
         this.activeAnswers.forEach((ans, index) => {
@@ -103,13 +103,13 @@ const game = {
 
             // Colisión
             let ansRect = ans.getBoundingClientRect();
-            if (this.isColliding(busRect, ansRect)) {
-                this.handleCollision(ans, index);
+            if (this.siColisiona(busRect, ansRect)) {
+                this.colisiones(ans, index);
             }
         });
     },
 
-    isColliding(a, b) {
+    siColisiona(a, b) {
         return !(
             a.right < b.left ||
             a.left > b.right ||
@@ -118,13 +118,13 @@ const game = {
         );
     },
 
-    handleCollision(ans, index) {
+    colisiones(ans, index) {
         let value = parseInt(ans.dataset.value);
 
         if (value === this.correctAnswer) {
-            this.score++;
-            this.scoreEl.textContent = this.score;
-            this.generateOperation();
+            this.puntos++;
+            this.puntosEl.textContent = this.puntos;
+            this.generarOperacion();
         } else {
             this.registerMiss();
         }
@@ -134,10 +134,10 @@ const game = {
     },
 
     registerMiss() {
-        this.missed++;
-        this.missedEl.textContent = this.missed;
+        this.fallos++;
+        this.fallosEl.textContent = this.fallos;
 
-        if (this.missed >= this.maxMissed) {
+        if (this.fallos >= this.maxfallos) {
             this.endGame();
         }
     },
@@ -146,7 +146,7 @@ const game = {
         clearInterval(this.gameInterval);
         clearInterval(this.spawnInterval);
 
-        document.getElementById("finalScore").textContent = this.score;
+        document.getElementById("finalpuntos").textContent = this.puntos;
         document.getElementById("gameOverModal").style.display = "flex";
     }
 };
