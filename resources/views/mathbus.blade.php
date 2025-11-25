@@ -3,7 +3,7 @@
 @section('content')
 <div class="w-full h-screen flex justify-center items-center bg-gradient-to-b from-blue-100 to-blue-300">
 
-    <div class="w-[900px] h-[600px] relative">
+    <div class="w-[1200px] h-[700px] relative">
 
         <!-- ========== MENÚ ========== -->
         <div id="menuScreen" class="absolute inset-0 flex flex-col justify-center items-center text-center space-y-6">
