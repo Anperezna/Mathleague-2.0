@@ -14,32 +14,22 @@
 
         <h2 class="text-2xl font-bold mt-8 mb-4 text-white">Estadísticas</h2>
 
+        @php
+            $juegos = [
+                ['title' => 'El Autobús', 'image' => 'img/juegos/mathbus.png'],
+                ['title' => 'Paco y la Cortacésped', 'image' => 'img/juegos/manolo.png'],
+                ['title' => 'Partido de Fútbol', 'image' => 'img/juegos/mathmatch.png'],
+                ['title' => 'Entrevista Postpartido', 'image' => 'img/juegos/mathentrevista.png'],
+            ];
+        @endphp
+
         <div class="flex gap-x-[5rem] justify-center">
-
-            <!-- Juego 1: Autobús -->
-            <x-game-stats-card 
-                title="El Autobús"
-                image="img/juegos/mathbus.png"
-            />
-
-            <!-- Juego 2: Paco y la Cortacésped -->
-            <x-game-stats-card 
-                title="Paco y la Cortacésped"
-                image="img/juegos/manolo.png"
-            />
-
-            <!-- Juego 3: Partido de Fútbol -->
-            <x-game-stats-card 
-                title="Partido de Fútbol"
-                image="img/juegos/mathmatch.png"
-            />
-
-            <!-- Juego 4: Entrevista Postpartido -->
-            <x-game-stats-card 
-                title="Entrevista Postpartido"
-                image="img/juegos/mathentrevista.png"
-            />
-
+            @foreach($juegos as $juego)
+                <x-game-stats-card 
+                    :title="$juego['title']"
+                    :image="$juego['image']"
+                />
+            @endforeach
         </div>
     </div>
 </div>
