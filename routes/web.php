@@ -8,13 +8,11 @@ Route::get('/', function () {
     return view('index');
 })->name('index');
 
-Route::get('/login', function () {
-    return view('login');
-})->name('login');
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 
-Route::get('/register', function () {
-    return view('register');
-})->name('register');
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
 
 Route::get('/mathbus/{idJuego}', [App\Http\Controllers\PreguntasController::class, 'index'])->name('mathbus');
 
@@ -45,9 +43,3 @@ Route::get('/about', function () {
 Route::get('/aprendizaje', function () {
     return view('aprendizaje');
 })->name('aprendizaje');
-
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
-
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');

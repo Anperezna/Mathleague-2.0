@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
-    //
     public function showLoginForm()
     {
         return view('login');
@@ -17,11 +16,11 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-       $usuario = Usuario::where('username', $request->input('username'))->first();
+        $usuario = Usuario::where('username', $request->input('username'))->first();
 
-        if ($usuario && Hash::check($request->input('contraseña'), $usuario->contraseña)) { 
+        if ($usuario && Hash::check($request->input('contrasena'), $usuario->contrasena)) { 
             Auth::login($usuario);
-            $response = redirect('/juegos');            
+            $response = redirect('juegos');            
         } else {
             session()->flash('error', 'Credenciales inválidas');
             $response = redirect()->back()->withInput();

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Container\Attributes\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,7 +19,7 @@ class Usuario extends Authenticatable
     public $incrementing = true;
     protected $keyType = 'int';
     public $timestamps = false;
-    protected $fillable = ['id_usuario', 'username', 'email', 'contraseña', 'fecha_registro'];
+    protected $fillable = ['id_usuario', 'username', 'email', 'contrasena', 'fecha_registro'];
 
     public function sesiones(): HasMany
     {
