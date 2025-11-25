@@ -28,7 +28,7 @@ const game = {
         this.scoreEl = document.getElementById("score");
         this.missedEl = document.getElementById("missed");
 
-        this.resetValues();
+        this.valoresReset();
         this.generateOperation();
         this.enableControls();
 
@@ -40,7 +40,7 @@ const game = {
         location.reload();
     },
 
-    resetValues() {
+    valoresReset() {
         this.busY = 150;
         this.score = 0;
         this.missed = 0;
@@ -51,8 +51,8 @@ const game = {
 
     enableControls() {
         document.onkeydown = (e) => {
-            if (e.key === "ArrowUp") this.busY -= this.speed * 4;
-            if (e.key === "ArrowDown") this.busY += this.speed * 4;
+            if (e.key === "ArrowUp") this.busY -= this.speed * 6;
+            if (e.key === "ArrowDown") this.busY += this.speed * 6;
             this.busY = Math.max(0, Math.min(this.busY, this.gameArea.clientHeight - 80));
             this.bus.style.top = this.busY + "px";
         };
