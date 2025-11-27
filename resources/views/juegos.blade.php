@@ -5,5 +5,6 @@
         <x-navbar bg_color="#111111">
         <x-botones></x-botones>
         </x-navbar>
+        <x-images></x-images>
     </div>
 @endsection

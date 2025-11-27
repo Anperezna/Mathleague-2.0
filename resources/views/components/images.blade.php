@@ -1,25 +1,24 @@
 @php
-	$imagenes = glob(public_path('images/*.{jpg,jpeg,png,gif}', GLOB_BRACE));
+    $juegos = [
+        ['fondos' => 'mathbus.png', 'ruta' => 'mathbus', 'idJuego' => 1],
+        ['fondos' => 'manolo.png', 'ruta' => 'cortacesped', 'idJuego' => 2],
+        ['fondos' => 'mathmatch.png', 'ruta' => 'mathmatch', 'idJuego' => 3],
+        ['fondos' => 'mathentrevista.png', 'ruta' => 'entrevista', 'idJuego' => 4],
+    ];
 @endphp
 
-<div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
-	@foreach ($imagenes as $img)
-		<img src="{{ asset('images/' . basename($img)) }}" alt="imagen" style="width: 200px; height: 200px; object-fit: cover; border-radius: 8px; background: #eee;" />
-	@endforeach
-</div>
-@php
-	$imagenes = [
-		'manolo.png',
-		'mathbus.png',
-		'mathentrevista.png',
-		'mathmatch.png',
-	]; // Pon aquí los nombres de tus imágenes
-@endphp
-
-<div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
-	@foreach ($imagenes as $img)
-		<div style="width: 200px; height: 200px; overflow: hidden; border-radius: 8px; background: #eee; display: flex; align-items: center; justify-content: center;">
-			<img src="{{ asset('img/juegos' . $img) }}" alt="imagen" style="max-width: 100%; max-height: 100%; object-fit: cover;" />
-		</div>
-	@endforeach
+<div class="flex flex-col gap-10 w-full py-10">
+    @foreach (collect($juegos)->chunk(2) as $chunk)
+        <div class="flex flex-wrap gap-10 justify-center items-center w-full">
+            @foreach ($chunk as $juego)
+                <a href="{{ route($juego['ruta'], ['idJuego' => $juego['idJuego']]) }}" class="hover:opacity-80 hover:scale-105 transition-all duration-200 ease-in-out">
+                    <img 
+                        src="{{ asset('img/juegos/' . $juego['fondos']) }}" 
+                        alt="{{ $juego['fondos'] }}" 
+                        class="w-60 h-60 md:w-64 md:h-64 object-cover rounded-xl bg-gray-200"
+                    />
+                </a>
+            @endforeach
+        </div>
+    @endforeach
 </div>
