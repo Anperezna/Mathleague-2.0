@@ -66,15 +66,14 @@ class PreguntasController extends Controller
 
     public function mathbus()
     {
-        // Traemos el juego Mathbus con todas sus preguntas
-
+        // Traemos el juego Mathbus con todas sus preguntas y opciones asociadas
         $juego = Juegos::with(['preguntas' => function($query) {
             $query->inRandomOrder();
-        }])->where('nombre', 'Mathbus')->first();
+        }, 'preguntas.opciones'])->where('nombre', 'Mathbus')->first();
 
         $preguntas = $juego ? $juego->preguntas : collect();
 
-        // Retornamos la vista con las preguntas
+        // Retornamos la vista con las preguntas y opciones
         return view('mathbus', compact('preguntas'));
     }
 }

@@ -86,9 +86,11 @@ const game = {
             let opciones = this.preguntaActual.opciones;
             if (opciones && opciones.length > 0) {
                 opciones.forEach(op => {
-                    this.opcionesActuales.push({
-                        valor: op.opcion1,
-                        esCorrecta: op.esCorrecta
+                    [op.opcion1, op.opcion2, op.opcion3, op.opcion4].forEach(valor => {
+                        this.opcionesActuales.push({
+                            valor: valor,
+                            esCorrecta: valor == op.esCorrecta
+                        });
                     });
                 });
             }
@@ -151,7 +153,7 @@ const game = {
     },
 
     colisiones(ans, index) {
-        let esCorrecta = ans.dataset.correcta == "1" || ans.dataset.correcta == "true";
+        let esCorrecta = ans.dataset.correcta === "true";
 
         if (esCorrecta) {
             this.puntos++;

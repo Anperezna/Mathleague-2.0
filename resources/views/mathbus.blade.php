@@ -83,5 +83,8 @@
         </div>
     </div>
 
+    <script>
+        window.preguntas = @json($preguntas);
+    </script>
     <script src="{{ asset('js/mathbus.js') }}"></script>
 @endsection
