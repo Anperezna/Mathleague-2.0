@@ -16,7 +16,7 @@ const game = {
     spawnInterval: null,
 
     currentOperation: null,
-    correctAnswer: null,
+    opcionesActuales: [],
 
     start() {
         document.getElementById("menuScreen").classList.add("hidden");
@@ -49,41 +49,73 @@ const game = {
         this.fallosEl.textContent = "0";
     },
 
+    valoresReset() {
+        this.busY = 150;
+        this.puntos = 0;
+        this.fallos = 0;
+        this.activeAnswers = [];
+        this.puntosEl.textContent = "0";
+        this.fallosEl.textContent = "0";
+        if (this.bus) {
+            this.bus.style.top = this.busY + "px";
+        }
+    },
+
     controles() {
         document.onkeydown = (e) => {
-            if (e.key === "ArrowUp") this.busY -= this.velocidad * 6;
-            if (e.key === "ArrowDown") this.busY += this.velocidad * 6;
-            this.busY = Math.max(0, Math.min(this.busY, this.gameArea.clientHeight - 80));
+            if (e.key === "ArrowUp") {
+                this.busY -= 20;
+            }
+            if (e.key === "ArrowDown") {
+                this.busY += 20;
+            }
+            this.busY = Math.max(0, Math.min(this.busY, this.gameArea.clientHeight - this.bus.clientHeight));
             this.bus.style.top = this.busY + "px";
         };
     },
 
     generarOperacion() {
-        let a = Math.floor(Math.random() * 10) + 1;
-        let b = Math.floor(Math.random() * 10) + 1;
+        if (window.preguntas && window.preguntas.length > 0) {
+            let idx = Math.floor(Math.random() * window.preguntas.length);
+            this.preguntaActual = window.preguntas[idx];
+            this.currentOperation = this.preguntaActual.enunciado;
+            this.operationDisplay.textContent = this.currentOperation;
 
-        this.correctAnswer = a + b;
-        this.currentOperation = `${a} + ${b}`;
-        this.operationDisplay.textContent = this.currentOperation;
+            // Opciones de la pregunta actual
+            this.opcionesActuales = [];
+            let opciones = this.preguntaActual.opciones;
+            if (opciones && opciones.length > 0) {
+                opciones.forEach(op => {
+                    this.opcionesActuales.push({
+                        valor: op.opcion1,
+                        esCorrecta: op.esCorrecta
+                    });
+                });
+            }
+        } else {
+            this.currentOperation = "Sin preguntas";
+            this.opcionesActuales = [];
+        }
     },
 
     crearRespuesta() {
-        const isCorrect = Math.random() < 0.4; // 40% probabilidad de ser la correcta
-        const value = isCorrect
-            ? this.correctAnswer
-            : Math.floor(Math.random() * 19) + 2;
+        if (this.opcionesActuales && this.opcionesActuales.length > 0) {
+            let idx = Math.floor(Math.random() * this.opcionesActuales.length);
+            const opcion = this.opcionesActuales[idx];
 
-        let answer = document.createElement("div");
-        answer.className =
-            "absolute right-0 text-white font-bold text-xl bg-blue-600 rounded-xl px-4 py-2 shadow-lg";
-        answer.style.top = Math.floor(Math.random() * (this.gameArea.clientHeight - 50)) + "px";
-        answer.style.right = "-80px";
-        answer.dataset.value = value;
+            let answer = document.createElement("div");
+            answer.className =
+                "absolute right-0 text-white font-bold text-xl bg-blue-600 rounded-xl px-4 py-2 shadow-lg";
+            answer.style.top = Math.floor(Math.random() * (this.gameArea.clientHeight - 50)) + "px";
+            answer.style.right = "-80px";
+            answer.dataset.value = opcion.valor;
+            answer.dataset.correcta = opcion.esCorrecta;
 
-        answer.textContent = value;
+            answer.textContent = opcion.valor;
 
-        this.gameArea.appendChild(answer);
-        this.activeAnswers.push(answer);
+            this.gameArea.appendChild(answer);
+            this.activeAnswers.push(answer);
+        }
     },
 
     actualizarJuego() {
@@ -95,7 +127,7 @@ const game = {
 
             // Si sale por la izquierda
             if (x > window.innerWidth) {
-                if (parseInt(ans.dataset.value) === this.correctAnswer) this.registerMiss();
+                if (parseInt(ans.dataset.value) === this.correctAnswer) this.registroError();
                 ans.remove();
                 this.activeAnswers.splice(index, 1);
                 return;
@@ -119,21 +151,21 @@ const game = {
     },
 
     colisiones(ans, index) {
-        let value = parseInt(ans.dataset.value);
+        let esCorrecta = ans.dataset.correcta == "1" || ans.dataset.correcta == "true";
 
-        if (value === this.correctAnswer) {
+        if (esCorrecta) {
             this.puntos++;
             this.puntosEl.textContent = this.puntos;
             this.generarOperacion();
         } else {
-            this.registerMiss();
+            this.registroError();
         }
 
         ans.remove();
         this.activeAnswers.splice(index, 1);
     },
 
-    registerMiss() {
+    registroError() {
         this.fallos++;
         this.fallosEl.textContent = this.fallos;
 
