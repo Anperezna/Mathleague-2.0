@@ -79,29 +79,40 @@ function generateDivisorChain() {
 
 /**
  * Inicializar juego
+ * @param {boolean} resetTimer - Si true, reinicia el temporizador a 60s
  */
-function initGame() {
+function initGame(resetTimer = true) {
     divisorChain = generateDivisorChain();
     currentNumber = divisorChain.reduce((a, b) => a * b, 1);
-    score = 0;
     currentDefense = 1;
-    timeRemaining = 60;
     
-    // Limpiar intervalo anterior si existe
-    if (timerInterval) {
-        clearInterval(timerInterval);
+    // Solo reiniciar tiempo y puntuación si es un juego completamente nuevo
+    if (resetTimer) {
+        score = 0;
+        timeRemaining = 60;
+        
+        // Limpiar intervalo anterior si existe
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+        
+        // Iniciar temporizador
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateDisplay();
+            
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                gameOver('time');
+            }
+        }, 1000);
     }
     
-    // Iniciar temporizador
-    timerInterval = setInterval(() => {
-        timeRemaining--;
-        updateDisplay();
-        
-        if (timeRemaining <= 0) {
-            clearInterval(timerInterval);
-            gameOver('time');
-        }
-    }, 1000);
+    console.log('=== NUEVA RONDA ===');
+    console.log('Cadena de divisores:', divisorChain);
+    console.log('Número inicial:', currentNumber);
+    console.log('Tiempo restante:', timeRemaining);
+    console.log('Verificación:', divisorChain[0], '*', divisorChain[1], '*', divisorChain[2], '*', divisorChain[3], '=', divisorChain.reduce((a, b) => a * b, 1));
     
     updateDisplay();
     showDefense();
@@ -149,17 +160,34 @@ function showDefense() {
     const stackContainer = document.createElement('div');
     stackContainer.className = 'flex flex-col gap-4 items-center';
 
-    if (currentDefense <= 5) {
-        // Defensas 1-5: mostrar 3 opciones
-        correctDivisor = divisorChain[currentDefense - 1];
+    if (currentDefense <= 4) {
+        // Defensas 1-4: La respuesta correcta es el divisor más pequeño del número actual
+        const allDivisors = getDivisors(currentNumber);
+        // Incluir también los números primos pequeños que podrían ser divisores
+        if (currentNumber % 2 === 0 && !allDivisors.includes(2)) allDivisors.push(2);
+        if (currentNumber % 3 === 0 && !allDivisors.includes(3)) allDivisors.push(3);
+        if (currentNumber % 5 === 0 && !allDivisors.includes(5)) allDivisors.push(5);
+        if (currentNumber % 7 === 0 && !allDivisors.includes(7)) allDivisors.push(7);
+        
+        // Ordenar y tomar el más pequeño mayor que 1
+        allDivisors.sort((a, b) => a - b);
+        correctDivisor = allDivisors.find(d => d > 1) || 2;
+        
+        console.log(`Defensa ${currentDefense}: Número actual = ${currentNumber}, Divisor correcto (más pequeño) = ${correctDivisor}`);
+        console.log(`Todos los divisores posibles:`, allDivisors);
+        
         const options = generateOptions(correctDivisor, currentNumber);
+        console.log(`Opciones generadas:`, options);
         
         options.forEach((option) => {
             const defenseDiv = createDefenseCard(option, option === correctDivisor);
             stackContainer.appendChild(defenseDiv);
         });
-    } else {
+    } else if (currentDefense === 5) {
         // Defensa 5: solo mostrar opción 1 (mantener tamaño con defensas invisibles)
+        correctDivisor = 1;
+        console.log(`Defensa 5 (final): currentNumber = ${currentNumber}, esperando respuesta = 1`);
+        
         // Defensa invisible superior
         const emptyTop = document.createElement('div');
         emptyTop.className = 'w-32 h-auto opacity-0 pointer-events-none';
@@ -189,6 +217,9 @@ function generateOptions(correct, currentNum) {
     const options = [correct];
     const used = new Set([correct]);
     
+    // Asegurar que correct sea un número entero
+    correct = Math.floor(correct);
+    
     // Obtener todos los divisores del número actual
     const allDivisors = getDivisors(currentNum);
     allDivisors.push(currentNum); // Agregar el número mismo como divisor
@@ -216,7 +247,8 @@ function generateOptions(correct, currentNum) {
             distractor = correct * multiplier;
         }
 
-        // Validar que el distractor sea válido
+        // Validar que el distractor sea válido y asegurarse de que sea entero
+        distractor = Math.floor(Math.abs(distractor));
         if (distractor > 1 && !used.has(distractor) && distractor <= currentNum * 2) {
             options.push(distractor);
             used.add(distractor);
@@ -236,11 +268,11 @@ function getDivisors(num) {
         if (num % i === 0) {
             divisors.push(i);
             if (i !== num / i && num / i !== num) {
-                divisors.push(num / i);
+                divisors.push(Math.floor(num / i));
             }
         }
     }
-    return divisors;
+    return divisors.filter(d => d > 1); // Filtrar solo divisores mayores que 1
 }
 
 /**
@@ -266,13 +298,50 @@ function createDefenseCard(number, isCorrect) {
  * Seleccionar opción
  */
 function selectOption(number, isCorrect, selectedDiv) {
-    if (!isCorrect) {
-        // Opción incorrecta - Game Over
-        gameOver();
-        return;
+    // Validar si la respuesta es correcta
+    // Para defensas 1-4: debe ser divisor del número actual Y ser el más pequeño
+    // Para defensa 5: debe ser 1
+    let expectedAnswer;
+    
+    if (currentDefense <= 4) {
+        // Primero verificar que sea un divisor válido
+        if (currentNumber % number !== 0) {
+            console.log(`❌ ${number} no es divisor de ${currentNumber}`);
+            gameOver();
+            return;
+        }
+        
+        // Calcular el divisor más pequeño del número actual
+        const allDivisors = getDivisors(currentNumber);
+        if (currentNumber % 2 === 0 && !allDivisors.includes(2)) allDivisors.push(2);
+        if (currentNumber % 3 === 0 && !allDivisors.includes(3)) allDivisors.push(3);
+        if (currentNumber % 5 === 0 && !allDivisors.includes(5)) allDivisors.push(5);
+        if (currentNumber % 7 === 0 && !allDivisors.includes(7)) allDivisors.push(7);
+        allDivisors.sort((a, b) => a - b);
+        expectedAnswer = allDivisors.find(d => d > 1) || 2;
+        
+        console.log(`Click en: ${number}, es divisor: ${currentNumber % number === 0}, esperaba el más pequeño: ${expectedAnswer}`);
+        
+        // Verificar que sea el divisor más pequeño
+        if (number != expectedAnswer) {
+            console.log(`❌ ${number} es divisor, pero no es el más pequeño (esperaba ${expectedAnswer})`);
+            gameOver();
+            return;
+        }
+    } else {
+        expectedAnswer = 1;
+        console.log(`Click en: ${number} (tipo: ${typeof number}), esperaba: ${expectedAnswer} (tipo: ${typeof expectedAnswer})`);
+        
+        if (number != expectedAnswer) {
+            console.log(`❌ Respuesta incorrecta: seleccionaste ${number}, esperaba ${expectedAnswer}`);
+            gameOver();
+            return;
+        }
     }
+    
+    console.log(`✓ Respuesta correcta!`);
 
-    // Deshabilitar clicks durante la animación
+    // Deshabilitar clicks durante la animación 
     const allOptions = document.querySelectorAll('#defense-stack [onclick]');
     allOptions.forEach(opt => opt.style.pointerEvents = 'none');
 
@@ -290,7 +359,7 @@ function selectOption(number, isCorrect, selectedDiv) {
         setTimeout(() => {
             showDefense();
         }, 500);
-    } else {
+    } else if (currentDefense === 5) {
         // Defensa 5 - Gol!
         score += 50;
         updateDisplay();
@@ -349,11 +418,7 @@ function gameOver(reason = 'wrong') {
  * Mostrar modal de gol
  */
 function showGoalModal() {
-    // Limpiar temporizador
-    if (timerInterval) {
-        clearInterval(timerInterval);
-    }
-    
+    // NO limpiar el temporizador - continúa corriendo
     document.getElementById('goal-score').textContent = score;
     document.getElementById('goal-modal').classList.remove('hidden');
 }
@@ -367,11 +432,11 @@ function restartGame() {
 }
 
 /**
- * Siguiente ronda
+ * Siguiente ronda - Continúa con el mismo temporizador
  */
 function nextRound() {
     document.getElementById('goal-modal').classList.add('hidden');
-    initGame();
+    initGame(false); // No reiniciar el temporizador
 }
 
 // Iniciar al cargar
