@@ -1,378 +1,282 @@
 // MathMatch - Juego de factorización con defensas
-let currentNumber = 64;
-let score = 0;
-let currentDefense = 1;
-let divisorChain = [];
-let correctDivisor = null;
-let timeRemaining = 60; // Segundos restantes
-let timerInterval = null; // Intervalo del temporizador
+let preguntas = [], preguntasDisponibles = [], preguntaActual = null, pasosUsuario = [];
+let score = 0, currentDefense = 1, totalDefensas = 5, timeRemaining = 40, timerInterval = null;
+let currentNumber = 0, numeroInicial = 0;
 
-// Posiciones horizontales de las defensas (de izquierda a derecha)
-const defensePositions = [
-    { left: '10%', label: 'Tu Área' },           // Defensa 1
-    { left: '28%', label: 'Medio Campo Propio' }, // Defensa 2
-    { left: '46%', label: 'Centro' },            // Defensa 3
-    { left: '64%', label: 'Medio Campo Rival' }, // Defensa 4
-    { left: '98%', label: 'Portería Rival' }     // Defensa 5 - En la portería
-];
-
-/**
- * Generar cadena de divisores (4 divisores que multiplicados dan el número inicial)
- * Evita números primos de primeras generando números con varios factores
- */
-function generateDivisorChain() {
-    const chain = [];
-    const length = 4;
-    
-    // Estrategia: generar números compuestos con múltiples factores (más complejos)
-    const smallPrimes = [2, 3, 5, 7];
-    const mediumPrimes = [11, 13];
-    
-    const strategies = [
-        // Estrategia 1: Números pequeños y medianos mezclados (ej: 2,3,7,5 = 210)
-        () => {
-            const arr = [];
-            for (let i = 0; i < length; i++) {
-                if (i < 2) {
-                    arr.push(smallPrimes[Math.floor(Math.random() * smallPrimes.length)]);
-                } else {
-                    arr.push(smallPrimes[Math.floor(Math.random() * 3)]); // Solo 2, 3, 5
-                }
-            }
-            return arr;
-        },
-        // Estrategia 2: Potencias variadas (ej: 2,2,3,5 = 60)
-        () => {
-            const arr = [];
-            const base = smallPrimes[Math.floor(Math.random() * 3)]; // 2, 3, o 5
-            arr.push(base, base); // Dos veces el mismo
-            arr.push(smallPrimes[Math.floor(Math.random() * smallPrimes.length)]);
-            arr.push(smallPrimes[Math.floor(Math.random() * smallPrimes.length)]);
-            return arr;
-        },
-        // Estrategia 3: Con un número mediano (ej: 2,3,5,11 = 330)
-        () => {
-            const arr = [];
-            arr.push(mediumPrimes[Math.floor(Math.random() * mediumPrimes.length)]);
-            for (let i = 1; i < length; i++) {
-                arr.push(smallPrimes[Math.floor(Math.random() * 3)]); // 2, 3, 5
-            }
-            return arr;
-        },
-        // Estrategia 4: Mix completo (ej: 3,5,7,2 = 210)
-        () => {
-            const arr = [];
-            for (let i = 0; i < length; i++) {
-                arr.push(smallPrimes[Math.floor(Math.random() * smallPrimes.length)]);
-            }
-            return arr;
+async function loadQuestions() {
+    try {
+        const { success, preguntas: data } = await (await fetch('/api/mathmatch/questions')).json();
+        if (success) {
+            preguntas = preguntasDisponibles = data;
+            initGame();
         }
-    ];
-    
-    // Elegir una estrategia aleatoria
-    const strategy = strategies[Math.floor(Math.random() * strategies.length)];
-    const result = strategy();
-    
-    // Mezclar para que no sean predecibles
-    return result.sort(() => Math.random() - 0.5);
+    } catch (error) {
+        console.error('Error al cargar preguntas:', error);
+    }
 }
 
-/**
- * Inicializar juego
- */
-function initGame() {
-    divisorChain = generateDivisorChain();
-    currentNumber = divisorChain.reduce((a, b) => a * b, 1);
-    score = 0;
+function initGame(resetTimer = true) {
+    if (!preguntas.length) return;
+    if (!preguntasDisponibles.length) preguntasDisponibles = [...preguntas];
+    
+    const indice = Math.floor(Math.random() * preguntasDisponibles.length);
+    preguntaActual = preguntasDisponibles.splice(indice, 1)[0];
+    
+    numeroInicial = currentNumber = parseInt(preguntaActual.enunciado.match(/\d+/)?.[0] || 0);
+    pasosUsuario = [];
     currentDefense = 1;
-    timeRemaining = 60;
+    totalDefensas = String(preguntaActual.solucion_correcta).length;
     
-    // Limpiar intervalo anterior si existe
-    if (timerInterval) {
+    if (resetTimer) {
+        score = 0;
+        timeRemaining = 40;
         clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (--timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                gameOver('time');
+            }
+            updateDisplay();
+        }, 1000);
     }
-    
-    // Iniciar temporizador
-    timerInterval = setInterval(() => {
-        timeRemaining--;
-        updateDisplay();
-        
-        if (timeRemaining <= 0) {
-            clearInterval(timerInterval);
-            gameOver('time');
-        }
-    }, 1000);
     
     updateDisplay();
     showDefense();
 }
 
-/**
- * Actualizar pantalla
- */
 function updateDisplay() {
     document.getElementById('current-number').textContent = currentNumber;
     document.getElementById('score').textContent = score;
-    document.getElementById('defense-level').textContent = `${currentDefense}/5`;
+    document.getElementById('defense-level').textContent = `${currentDefense}/${totalDefensas}`;
+    if (preguntaActual) document.getElementById('enunciado').textContent = preguntaActual.enunciado;
     
-    // Actualizar temporizador
-    const timerElement = document.getElementById('timer');
-    if (timerElement) {
-        timerElement.textContent = timeRemaining;
-        // Cambiar color si quedan menos de 10 segundos
-        if (timeRemaining <= 10) {
-            timerElement.classList.add('text-red-600');
-            timerElement.classList.remove('text-orange-600');
-        } else if (timeRemaining <= 20) {
-            timerElement.classList.add('text-orange-600');
-            timerElement.classList.remove('text-red-600');
-        } else {
-            timerElement.classList.remove('text-red-600', 'text-orange-600');
-        }
-    }
+    const timer = document.getElementById('timer');
+    timer.textContent = timeRemaining;
+    timer.className = timeRemaining <= 10 ? 'text-3xl font-bold text-red-600' : 
+                      timeRemaining <= 20 ? 'text-3xl font-bold text-orange-600' : 
+                      'text-3xl font-bold text-blue-600';
 }
 
-/**
- * Mostrar defensa actual - Todas las defensas en vertical en el lado izquierdo, avanzando horizontalmente
- */
 function showDefense() {
     const container = document.getElementById('defense-container');
-    container.innerHTML = '';
+    const stack = document.createElement('div');
+    stack.id = 'defense-stack';
+    stack.className = 'absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out flex flex-col gap-4 items-center';
+    stack.style.left = `${10 + ((currentDefense - 1) / (totalDefensas - 1)) * 88}%`;
     
-    // Crear contenedor vertical para todas las defensas
-    const verticalStack = document.createElement('div');
-    verticalStack.className = 'absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out';
-    verticalStack.style.left = defensePositions[currentDefense - 1].left;
-    verticalStack.id = 'defense-stack';
-    
-    // Contenedor flex vertical
-    const stackContainer = document.createElement('div');
-    stackContainer.className = 'flex flex-col gap-4 items-center';
-
-    if (currentDefense <= 5) {
-        // Defensas 1-5: mostrar 3 opciones
-        correctDivisor = divisorChain[currentDefense - 1];
-        const options = generateOptions(correctDivisor, currentNumber);
-        
-        options.forEach((option) => {
-            const defenseDiv = createDefenseCard(option, option === correctDivisor);
-            stackContainer.appendChild(defenseDiv);
-        });
+    if (currentDefense < totalDefensas) {
+        const correctOption = obtenerDivisorMasPequeno(currentNumber);
+        generarOpcionesAleatorias(currentNumber, correctOption).forEach(opt => 
+            stack.appendChild(createDefenseCard(opt))
+        );
     } else {
-        // Defensa 5: solo mostrar opción 1 (mantener tamaño con defensas invisibles)
-        // Defensa invisible superior
-        const emptyTop = document.createElement('div');
-        emptyTop.className = 'w-32 h-auto opacity-0 pointer-events-none';
-        emptyTop.style.height = '128px'; // Mismo alto aproximado que una defensa
-        stackContainer.appendChild(emptyTop);
-        
-        // Defensa con el 1 (opción correcta)
-        const goalOption = createDefenseCard(1, true);
-        stackContainer.appendChild(goalOption);
-        
-        // Defensa invisible inferior
-        const emptyBottom = document.createElement('div');
-        emptyBottom.className = 'w-32 h-auto opacity-0 pointer-events-none';
-        emptyBottom.style.height = '128px';
-        stackContainer.appendChild(emptyBottom);
-    }
-    
-    verticalStack.appendChild(stackContainer);
-    container.appendChild(verticalStack);
-}
-
-/**
- * Generar opciones (1 correcta + 3 distractores = 4 opciones totales)
- * Mejorado para evitar números primos y generar distractores más inteligentes
- */
-function generateOptions(correct, currentNum) {
-    const options = [correct];
-    const used = new Set([correct]);
-    
-    // Obtener todos los divisores del número actual
-    const allDivisors = getDivisors(currentNum);
-    allDivisors.push(currentNum); // Agregar el número mismo como divisor
-
-    // Generar distractores (ahora 3 en lugar de 2)
-    while (options.length < 4) {
-        let distractor;
-        const rand = Math.random();
-        
-        if (rand < 0.5 && allDivisors.length > 0) {
-            // 50% de probabilidad: usar un divisor real pero incorrecto
-            const filteredDivisors = allDivisors.filter(d => d !== correct && d > 1);
-            if (filteredDivisors.length > 0) {
-                distractor = filteredDivisors[Math.floor(Math.random() * filteredDivisors.length)];
-            } else {
-                distractor = correct + 1;
+        ['64px', currentNumber, '64px'].forEach(item => {
+            const div = typeof item === 'number' ? createDefenseCard(item) : 
+                document.createElement('div');
+            if (typeof item === 'string') {
+                div.className = 'w-32 opacity-0 pointer-events-none';
+                div.style.height = item;
             }
-        } else if (rand < 0.75) {
-            // 25%: número cercano al correcto
-            const offset = Math.floor(Math.random() * 3) + 1;
-            distractor = correct + (Math.random() < 0.5 ? offset : -offset);
-        } else {
-            // 25%: múltiplo del correcto
-            const multiplier = Math.floor(Math.random() * 3) + 2;
-            distractor = correct * multiplier;
-        }
-
-        // Validar que el distractor sea válido
-        if (distractor > 1 && !used.has(distractor) && distractor <= currentNum * 2) {
-            options.push(distractor);
-            used.add(distractor);
-        }
+            stack.appendChild(div);
+        });
     }
-
-    // Mezclar opciones
-    return options.sort(() => Math.random() - 0.5);
+    
+    container.innerHTML = '';
+    container.appendChild(stack);
 }
 
-/**
- * Obtener divisores de un número
- */
-function getDivisors(num) {
-    const divisors = [];
+function obtenerDivisorMasPequeno(num) {
+    if (num <= 1) return 1;
     for (let i = 2; i <= Math.sqrt(num); i++) {
-        if (num % i === 0) {
-            divisors.push(i);
-            if (i !== num / i && num / i !== num) {
-                divisors.push(num / i);
-            }
-        }
+        if (num % i === 0) return i;
     }
-    return divisors;
+    return num;
 }
 
-/**
- * Crear tarjeta de defensa - Los números aparecen sin fondo circular
- */
-function createDefenseCard(number, isCorrect) {
+function generarOpcionesAleatorias(numeroActual, opcionCorrecta) {
+    const opciones = new Set([opcionCorrecta]);
+    const primos = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+    const divisores = [];
+    
+    for (let i = 2; i <= Math.sqrt(numeroActual); i++) {
+        if (numeroActual % i === 0) {
+            divisores.push(i, Math.floor(numeroActual / i));
+        }
+    }
+    
+    while (opciones.size < 4) {
+        const rand = Math.random();
+        let distractor = rand < 0.4 ? primos[Math.floor(Math.random() * primos.length)] :
+                        rand < 0.7 && divisores.length ? divisores.filter(d => d !== opcionCorrecta && d > 1)[Math.floor(Math.random() * divisores.length)] :
+                        opcionCorrecta + (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 5) + 1);
+        
+        if (distractor > 1 && distractor <= numeroActual) opciones.add(distractor);
+    }
+    
+    return Array.from(opciones).sort(() => Math.random() - 0.5);
+}
+
+function createDefenseCard(number) {
     const div = document.createElement('div');
     div.className = 'relative cursor-pointer transform transition-all duration-300 hover:scale-110';
-    div.innerHTML = `
-        <div class="relative flex items-center justify-center">
-            <img src="/img/Defensa_MathMatch.png" alt="Defensa" class="w-32 h-auto drop-shadow-2xl">
-            <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-5xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">${number}</span>
-            </div>
-        </div>
-    `;
-    
-    div.onclick = () => selectOption(number, isCorrect, div);
+    div.innerHTML = `<div class="relative flex items-center justify-center">
+        <img src="/img/Defensa_MathMatch.png" alt="Defensa" class="w-32 h-auto drop-shadow-2xl">
+        <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-5xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">${number}</span>
+        </div></div>`;
+    div.onclick = () => selectOption(number);
     return div;
 }
 
-/**
- * Seleccionar opción
- */
-function selectOption(number, isCorrect, selectedDiv) {
-    if (!isCorrect) {
-        // Opción incorrecta - Game Over
-        gameOver();
-        return;
-    }
+function selectOption(number) {
+    document.querySelectorAll('#defense-stack [onclick]').forEach(opt => opt.style.pointerEvents = 'none');
 
-    // Deshabilitar clicks durante la animación
-    const allOptions = document.querySelectorAll('#defense-stack [onclick]');
-    allOptions.forEach(opt => opt.style.pointerEvents = 'none');
-
-    if (currentDefense <= 4) {
-        // Dividir el número
-        currentNumber = currentNumber / number;
+    if (currentDefense < totalDefensas) {
+        const divisorCorrecto = obtenerDivisorMasPequeno(currentNumber);
+        if (number !== divisorCorrecto) return gameOver('wrong');
+        
+        pasosUsuario.push(number);
+        currentNumber /= number;
         score += 10;
         currentDefense++;
         updateDisplay();
-        
-        // Animación de éxito
         showSuccessAnimation();
-        
-        // Avanzar horizontalmente después de la animación
-        setTimeout(() => {
-            showDefense();
-        }, 500);
+        setTimeout(showDefense, 500);
     } else {
-        // Defensa 5 - Gol!
+        if (number !== currentNumber) return gameOver('wrong');
+        pasosUsuario.push(number);
+        currentNumber /= number;
         score += 50;
         updateDisplay();
+        verificarSolucionCompleta();
+    }
+}
+
+function verificarSolucionCompleta() {
+    const solucionCorrecta = String(preguntaActual.solucion_correcta).split('').map(Number);
+    const verificacion = pasosUsuario.reduce((acc, val) => acc * val, 1);
+    
+    const esCorrecto = verificacion === numeroInicial && 
+                      pasosUsuario.length === solucionCorrecta.length &&
+                      pasosUsuario.every((paso, i) => paso === solucionCorrecta[i]);
+    
+    if (esCorrecto) {
+        // Cambiar fondo del campo a portería
+        const gameContainer = document.querySelector('#gameScreen > div');
+        gameContainer.style.backgroundImage = "url('/img/porteria_mathmatch.png')";
         
-        // Animación de gol
+        // Mostrar pantalla de penalti después de un pequeño delay
         setTimeout(() => {
-            showGoalModal();
-        }, 500);
+            showPenaltyScreen();
+        }, 300);
+    } else {
+        gameOver('wrong');
     }
 }
 
-/**
- * Mostrar animación de éxito
- */
-function showSuccessAnimation() {
-    const container = document.getElementById('defense-container');
-    const successDiv = document.createElement('div');
-    successDiv.className = 'absolute inset-0 flex items-center justify-center pointer-events-none';
-    successDiv.innerHTML = `
-        <div class="text-6xl font-bold text-green-500 animate-bounce">
-            ✓ +10
-        </div>
-    `;
-    container.appendChild(successDiv);
+function showPenaltyScreen() {
+    document.getElementById('penalty-screen').classList.remove('hidden');
+    // Resetear posición del portero
+    const goalkeeper = document.getElementById('goalkeeper');
+    goalkeeper.style.bottom = '25%';
+    goalkeeper.style.left = '50%';
+    goalkeeper.style.transform = 'translateX(-50%)';
+}
+
+function shootPenalty(playerChoice) {
+    // Deshabilitar botones
+    document.querySelectorAll('#penalty-screen button').forEach(btn => btn.disabled = true);
     
+    const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+    const goalkeeperChoice = positions[Math.floor(Math.random() * positions.length)];
+    
+    // Mover portero a la posición elegida aleatoriamente
+    moveGoalkeeper(goalkeeperChoice);
+    
+    // Esperar animación y verificar resultado
     setTimeout(() => {
-        successDiv.remove();
-    }, 500);
+        document.getElementById('penalty-screen').classList.add('hidden');
+        
+        // Restaurar fondo del campo
+        const gameContainer = document.querySelector('#gameScreen > div');
+        gameContainer.style.backgroundImage = "url('/img/Campo_MathMatch.png')";
+        
+        if (playerChoice === goalkeeperChoice) {
+            // Atajada - resta puntos
+            score -= 70;
+            if (score < 0) score = 0;
+            updateDisplay();
+            document.getElementById('miss-score').textContent = score;
+            document.getElementById('miss-modal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('miss-modal').classList.add('hidden');
+                nextRound();
+            }, 2000);
+        } else {
+            // ¡Gol! - suma puntos extras
+            score += 50;
+            updateDisplay();
+            showGoalModal();
+        }
+        
+        // Habilitar botones de nuevo
+        document.querySelectorAll('#penalty-screen button').forEach(btn => btn.disabled = false);
+    }, 800);
 }
 
-/**
- * Game Over
- */
+function moveGoalkeeper(position) {
+    const goalkeeper = document.getElementById('goalkeeper');
+    
+    // Posiciones del portero según la elección
+    const goalkeeperPositions = {
+        'top-left': { bottom: '45%', left: '15%', transform: 'translateX(0)' },
+        'top-right': { bottom: '45%', left: '70%', transform: 'translateX(0)' },
+        'bottom-left': { bottom: '15%', left: '15%', transform: 'translateX(0)' },
+        'bottom-right': { bottom: '15%', left: '70%', transform: 'translateX(0)' }
+    };
+    
+    // Aplicar la posición del portero
+    const pos = goalkeeperPositions[position];
+    goalkeeper.style.bottom = pos.bottom;
+    goalkeeper.style.left = pos.left;
+    goalkeeper.style.transform = pos.transform;
+}
+
+function showSuccessAnimation() {
+    const div = document.createElement('div');
+    div.className = 'absolute inset-0 flex items-center justify-center pointer-events-none';
+    div.innerHTML = '<div class="text-6xl font-bold text-green-500 animate-bounce">✓ +10</div>';
+    document.getElementById('defense-container').appendChild(div);
+    setTimeout(() => div.remove(), 500);
+}
+
 function gameOver(reason = 'wrong') {
-    // Limpiar temporizador
-    if (timerInterval) {
-        clearInterval(timerInterval);
-    }
-    
+    clearInterval(timerInterval);
     document.getElementById('final-score').textContent = score;
-    document.getElementById('defenses-passed').textContent = currentDefense - 1;
-    
-    const reasonElement = document.getElementById('game-over-reason');
-    if (reasonElement) {
-        if (reason === 'time') {
-            reasonElement.textContent = '¡Se acabó el tiempo!';
-        } else {
-            reasonElement.textContent = 'Respuesta incorrecta';
-        }
-    }
-    
+    document.getElementById('defenses-passed').textContent = `${currentDefense - 1}/${totalDefensas}`;
+    document.getElementById('game-over-reason').textContent = 
+        reason === 'time' ? '¡Se acabó el tiempo!' : 'Respuesta incorrecta';
     document.getElementById('game-over-modal').classList.remove('hidden');
 }
 
-/**
- * Mostrar modal de gol
- */
 function showGoalModal() {
-    // Limpiar temporizador
-    if (timerInterval) {
-        clearInterval(timerInterval);
-    }
-    
     document.getElementById('goal-score').textContent = score;
+    document.getElementById('goal-points').textContent = '+70 puntos';
     document.getElementById('goal-modal').classList.remove('hidden');
+    setTimeout(() => {
+        document.getElementById('goal-modal').classList.add('hidden');
+        nextRound();
+    }, 2000);
 }
 
-/**
- * Reiniciar juego
- */
 function restartGame() {
     document.getElementById('game-over-modal').classList.add('hidden');
-    initGame();
+    preguntasDisponibles = [...preguntas];
+    initGame(true);
 }
 
-/**
- * Siguiente ronda
- */
 function nextRound() {
     document.getElementById('goal-modal').classList.add('hidden');
-    initGame();
+    initGame(false);
 }
 
-// Iniciar al cargar
-window.addEventListener('DOMContentLoaded', initGame);

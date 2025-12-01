@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Preguntas;
+use App\Models\Juegos;
 use Illuminate\Http\Request;
 
 class PreguntasController extends Controller
@@ -12,9 +13,38 @@ class PreguntasController extends Controller
      */
     public function index($idJuego)
     {
-        //
-        $preguntas = Preguntas::where('id_juego', $idJuego)->get();
-        return view('mathbus', compact('preguntas'));
+        // 
+    }
+
+    /**
+     * Obtener preguntas para MathMatch (id_juego = 3) con opciones
+     */
+    public function getPreguntasMathmatch()
+    {
+        $preguntas = Preguntas::with('opciones')
+            ->where('id_juego', 3)
+            ->inRandomOrder()
+            ->get()
+            ->map(function ($pregunta) {
+                $opciones = $pregunta->opciones->first();
+                
+                return [
+                    'id_pregunta' => $pregunta->id_pregunta,
+                    'enunciado' => $pregunta->enunciado,
+                    'opciones' => [
+                        'opcion1' => $opciones->opcion1,
+                        'opcion2' => $opciones->opcion2,
+                        'opcion3' => $opciones->opcion3,
+                        'opcion4' => $opciones->opcion4,
+                    ],
+                    'solucion_correcta' => $opciones->esCorrecta
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'preguntas' => $preguntas
+        ]);
     }
 
     /**
@@ -63,5 +93,18 @@ class PreguntasController extends Controller
     public function destroy(Preguntas $preguntas)
     {
         //
+    }
+
+    public function mathbus()
+    {
+        // Traemos el juego Mathbus con todas sus preguntas y opciones asociadas
+        $juego = Juegos::with(['preguntas' => function($query) {
+            $query->inRandomOrder();
+        }, 'preguntas.opciones'])->where('nombre', 'Mathbus')->first();
+
+        $preguntas = $juego ? $juego->preguntas : collect();
+
+        // Retornamos la vista con las preguntas y opciones
+        return view('mathbus', compact('preguntas'));
     }
 }
