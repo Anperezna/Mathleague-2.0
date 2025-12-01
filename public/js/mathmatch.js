@@ -1,7 +1,7 @@
 // Variables del juego
 let preguntas = [], preguntasDisponibles = [], preguntaActual = null, pasosUsuario = [];
 let score = 0, currentDefense = 1, totalDefensas = 5, tiempo = 0, timerInterval = null;
-let currentNumber = 0, numeroInicial = 0;
+let currentNumber = 0, numeroInicial = 0, fallos = 0, intentos = 0, numerosCompletados = 0;
 
 // Cargar preguntas
 async function loadQuestions() {
@@ -26,14 +26,20 @@ function initGame(resetTimer = true) {
     
     if (resetTimer) {
         score = 0;
+        fallos = 0;
+        intentos = 1;
+        numerosCompletados = 0;
         tiempo = 0;
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             tiempo++;
             updateDisplay();
         }, 1000);
+    } else {
+        intentos++;
     }
     
+    guardarCookies("intentos", intentos, 1);
     updateDisplay();
     showDefense();
 }
@@ -48,6 +54,8 @@ function updateDisplay() {
     const timer = document.getElementById('timer');
     timer.textContent = tiempo;
     timer.className = 'text-3xl font-bold text-blue-600';
+    
+    guardarCookies("tiempo", tiempo, 1);
                       
 }
 
@@ -128,33 +136,42 @@ function createDefenseCard(number) {
 function selectOption(number) {
     document.querySelectorAll('#defense-stack [onclick]').forEach(opt => opt.style.pointerEvents = 'none');
 
-    if (currentDefense < totalDefensas) {
-        if (number !== obtenerDivisorMasPequeno(currentNumber)) return gameOver('wrong');
-        pasosUsuario.push(number);
-        currentNumber /= number;
-        score += 1;
-        currentDefense++;
-        updateDisplay();
-        showSuccessAnimation();
+    const divisorCorrecto = obtenerDivisorMasPequeno(currentNumber);
+    if (number !== divisorCorrecto) {
+        gameOver('wrong');
+        return;
+    }
+    
+    pasosUsuario.push(number);
+    currentNumber /= number;
+    score += 1;
+    guardarCookies("puntos", score, 1);
+    currentDefense++;
+    updateDisplay();
+    showSuccessAnimation();
+    
+    // Si completó 5 números, victoria automática
+    if (pasosUsuario.length >= 5) {
+        setTimeout(() => {
+            document.querySelector('#gameScreen > div').style.backgroundImage = "url('/img/porteria_mathmatch.png')";
+            setTimeout(showPenaltyScreen, 300);
+        }, 500);
+    } else if (currentDefense <= totalDefensas) {
         setTimeout(showDefense, 500);
     } else {
-        // Última defensa: verificar que sea el divisor más pequeño (el número primo final)
-        const divisorCorrecto = obtenerDivisorMasPequeno(currentNumber);
-        if (number !== divisorCorrecto) return gameOver('wrong');
-        pasosUsuario.push(number);
-        currentNumber /= number;
-        score += 1;
-        updateDisplay();
-        verificarSolucionCompleta();
+        // Si hay más defensas pero ya completó 5 pasos
+        setTimeout(() => {
+            document.querySelector('#gameScreen > div').style.backgroundImage = "url('/img/porteria_mathmatch.png')";
+            setTimeout(showPenaltyScreen, 300);
+        }, 500);
     }
 }
 
 // Verificar solución completa
 function verificarSolucionCompleta() {
-    const solucion = String(preguntaActual.solucion_correcta).split('').map(Number);
-    const correcto = pasosUsuario.reduce((a, v) => a * v, 1) === numeroInicial && 
-                     pasosUsuario.length === solucion.length &&
-                     pasosUsuario.every((p, i) => p === solucion[i]);
+    // Verificar que el producto de todos los pasos sea igual al número inicial
+    const producto = pasosUsuario.reduce((a, v) => a * v, 1);
+    const correcto = producto === numeroInicial && currentNumber === 1;
     
     if (correcto) {
         document.querySelector('#gameScreen > div').style.backgroundImage = "url('/img/porteria_mathmatch.png')";
@@ -186,13 +203,11 @@ function shootPenalty(choice) {
         
         if (choice === gkChoice) {
             // Portero paró el penalti - Game Over
-            clearInterval(timerInterval);
-            document.getElementById('final-score').textContent = score;
-            document.getElementById('final-time').textContent = tiempo;
-            document.getElementById('game-over-reason').textContent = '¡El portero paró tu penalti!';
-            document.getElementById('game-over-modal').classList.remove('hidden');
+            gameOver('goalkeeper');
         } else {
             score += 5;
+            numerosCompletados++;
+            guardarCookies("puntos", score, 1);
             updateDisplay();
             showGoalModal();
         }
@@ -228,17 +243,35 @@ function showSuccessAnimation() {
 // Game Over
 function gameOver(reason = 'wrong') {
     clearInterval(timerInterval);
+    fallos = 1;
+    guardarCookies("final", true, 1);
+    
+    // Ocultar elementos del juego
+    document.getElementById('penalty-screen').classList.add('hidden');
+    document.querySelector('#gameScreen > div').style.backgroundImage = "url('/img/Campo_MathMatch.png')";
+    
+    // Enviar datos al servidor
+    enviarDatosAlServidor();
+    
+    // Actualizar y mostrar modal
     document.getElementById('final-score').textContent = score;
-    document.getElementById('final-time').textContent = tiempo + ' segundos';
-    document.getElementById('game-over-reason').textContent = 'Respuesta incorrecta';
-    document.getElementById('game-over-modal').classList.remove('hidden');
+    document.getElementById('final-time').textContent = tiempo;
+    document.getElementById('game-over-reason').textContent = reason === 'goalkeeper' ? '¡El portero paró tu penalti!' : 'Respuesta incorrecta';
+    
+    const modal = document.getElementById('game-over-modal');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
 }
 
 // Mostrar modal de gol
 function showGoalModal() {
     document.getElementById('goal-score').textContent = score;
-    document.getElementById('goal-points').textContent = '+70 puntos';
+    document.getElementById('goal-points').textContent = '+5 puntos';
     document.getElementById('goal-modal').classList.remove('hidden');
+    
+    // Enviar datos al servidor cuando completa un número
+    enviarDatosAlServidor();
+    
     setTimeout(() => {
         document.getElementById('goal-modal').classList.add('hidden');
         nextRound();
@@ -247,7 +280,9 @@ function showGoalModal() {
 
 // Reiniciar juego
 function restartGame() {
-    document.getElementById('game-over-modal').classList.add('hidden');
+    const modal = document.getElementById('game-over-modal');
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
     preguntasDisponibles = [...preguntas];
     initGame(true);
 }
@@ -257,3 +292,61 @@ function nextRound() {
     document.getElementById('goal-modal').classList.add('hidden');
     initGame(false);
 }
+
+function enviarDatosAlServidor() {
+    const csrfToken = document.querySelector('meta[name="csrf-token"')?.getAttribute('content');
+    
+    const datosJuego = {
+        tiempo: tiempo,
+        puntos: score,
+        fallos: fallos,
+        intentos: intentos,
+        numerosCompletados: numerosCompletados,
+        id_juego: 3 
+    };
+
+    fetch('/guardar-sesion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken || ''
+            },
+            body: JSON.stringify(datosJuego)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Sesión guardada:', data);
+        })
+    .catch(error => {
+        console.error('Error al guardar la sesión:', error);
+    });
+}
+
+// Guardar cookies
+function guardarCookies(nombre, valor, dias) {
+    const estado = {
+        tiempo: tiempo,
+        puntos: score,
+        fallos: fallos,
+        intentos: intentos,
+        numerosCompletados: numerosCompletados
+    };
+    const fecha = new Date();
+    fecha.setTime(fecha.getTime() + 1 * 24 * 60 * 60 * 1000); // 1 día
+    document.cookie = "mathmatch=" + JSON.stringify(estado) + ";expires=" + fecha.toUTCString() + ";path=/";
+}
+
+// Leer cookie
+function leerCookie() {
+    const nombreCookie = "mathmatch=";
+    const contenido = document.cookie.split(';');
+    for (let i = 0; i < contenido.length; i++) {
+        let cookieCompleta = contenido[i].trim();
+        if (cookieCompleta.indexOf(nombreCookie) === 0) {
+            const estadoStr = cookieCompleta.substring(nombreCookie.length);
+            const valorCookie = JSON.parse(estadoStr);
+            return valorCookie;
+        }
+    }
+    return null;
+}  
