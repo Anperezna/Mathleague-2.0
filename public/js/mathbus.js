@@ -4,9 +4,12 @@ const game = {
     operationDisplay: null,
     puntosEl: null,
     fallosEl: null,
+    tiempo: 0,
+    intervaloTiempo: null,
+    ayuda: 0,
 
     busY: 150,
-    velocidad: 4,
+    velocidad: 6,
     puntos: 0,
     fallos: 0,
     maxfallos: 3,
@@ -18,7 +21,7 @@ const game = {
     currentOperation: null,
     opcionesActuales: [],
 
-    start() {
+    inicio() {
         document.getElementById("menuScreen").classList.add("hidden");
         document.getElementById("gameScreen").classList.remove("hidden");
 
@@ -27,6 +30,7 @@ const game = {
         this.operationDisplay = document.getElementById("operationDisplay");
         this.puntosEl = document.getElementById("puntos");
         this.fallosEl = document.getElementById("fallos");
+        this.iniciarTemporizador();
 
         this.valoresReset();
         this.generarOperacion();
@@ -38,15 +42,6 @@ const game = {
 
     reset() {
         location.reload();
-    },
-
-    valoresReset() {
-        this.busY = 150;
-        this.puntos = 0;
-        this.fallos = 0;
-        this.activeAnswers = [];
-        this.puntosEl.textContent = "0";
-        this.fallosEl.textContent = "0";
     },
 
     valoresReset() {
@@ -100,6 +95,23 @@ const game = {
         }
     },
 
+    iniciarTemporizador() {
+        this.tiempo = 0;
+
+        this.intervaloTiempo = setInterval(() => {
+            this.tiempo++;
+            // Si quieres mostrarlo en pantalla puedes hacerlo aquí
+        }, 1000);
+        this.guardarCookies("tiempo", this.tiempo, 1);
+    },
+
+    usarAyuda() {
+        this.ayuda++;
+        console.log("Ayuda usada", this.ayuda);
+
+        this.guardarCookies("ayuda", this.ayuda, 1);
+    },
+
     crearRespuesta() {
         if (this.opcionesActuales && this.opcionesActuales.length > 0) {
             let idx = Math.floor(Math.random() * this.opcionesActuales.length);
@@ -125,7 +137,7 @@ const game = {
 
         this.activeAnswers.forEach((ans, index) => {
             let x = parseInt(ans.style.right);
-            ans.style.right = x + 3 + "px";
+            ans.style.right = x + 5 + "px";
 
             // Si sale por la izquierda
             if (x > window.innerWidth) {
@@ -159,28 +171,113 @@ const game = {
             this.puntos++;
             this.puntosEl.textContent = this.puntos;
             this.generarOperacion();
+
+            // Terminar juego si alcanza 10 puntos
+            if (this.puntos >= 10) {
+                this.finJuego();
+            }
         } else {
             this.registroError();
         }
+
+        // Guardar puntos en cookie **después de actualizar**
+        this.guardarCookies("puntos", this.puntos, 1);
 
         ans.remove();
         this.activeAnswers.splice(index, 1);
     },
 
+
+
     registroError() {
         this.fallos++;
         this.fallosEl.textContent = this.fallos;
 
+        // Guardar fallos en cookie
+        this.guardarCookies("fallos", this.fallos, 1);
+
         if (this.fallos >= this.maxfallos) {
-            this.endGame();
+            this.finJuego();
         }
     },
 
-    endGame() {
+
+    finJuego() {
         clearInterval(this.gameInterval);
         clearInterval(this.spawnInterval);
+        clearInterval(this.intervaloTiempo);
 
-        document.getElementById("finalpuntos").textContent = this.puntos;
+        // Guardar los datos finales en cookies
+        this.guardarCookies("final", true, 1);
+
+        // Enviar los datos al servidor
+        this.enviarDatosAlServidor();
+
+        // Actualizar el modal con la información final
+        document.getElementById("finalPuntos").textContent = this.puntos;
+        document.getElementById("finalTiempo").textContent = this.tiempo + "s";
+        document.getElementById("finalErrores").textContent = this.fallos;
+        
+        // Mostrar el modal
+        document.getElementById("gameOverModal").classList.remove("hidden");
         document.getElementById("gameOverModal").style.display = "flex";
+    },
+
+    enviarDatosAlServidor() {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        
+        const datosJuego = {
+            tiempo: this.tiempo,
+            puntos: this.puntos,
+            fallos: this.fallos,
+            ayuda: this.ayuda,
+            id_juego: 1 // ID del juego Mathbus (según tu base de datos)
+        };
+
+        fetch('/guardar-sesion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken || ''
+            },
+            body: JSON.stringify(datosJuego)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Sesión guardada:', data);
+        })
+        .catch(error => {
+            console.error('Error al guardar la sesión:', error);
+        });
+    },
+
+    guardarCookies(nombre, valor, dias) {
+        const estado = {
+            tiempo: this.tiempo,
+            puntos: this.puntos,
+            fallos: this.fallos,
+            ayuda: this.ayuda
+        };
+        const fecha = new Date();
+        fecha.setTime(fecha.getTime() + 1 * 24 * 60 * 60 * 1000); // 1 día
+        document.cookie = "mathbus=" + JSON.stringify(estado) + ";expires=" + fecha.toUTCString() + ";path=/";
+
+    },
+
+    leerCookie() {
+        const nombreCookie = "mathbus=";
+        const contenido = document.cookie.split(';');
+        for (let i = 0; i < contenido.length; i++) {
+            let cookieCompleta = contenido[i].trim();
+            if (cookieCompleta.indexOf(nombreCookie) === 0) {
+                // Tomamos el valor tal cual está en la cookie
+                const estadoStr = cookieCompleta.substring(nombreCookie.length);
+                // Parseamos el JSON directamente (solo funciona si la cookie se guardó sin encodeURIComponent)
+                const valorCookie = JSON.parse(estadoStr);
+                return valorCookie;
+            }
+        }
+        return null;
     }
+
 };
