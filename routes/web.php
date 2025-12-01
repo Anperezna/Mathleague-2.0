@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\MathmatchController;
 use App\Http\Controllers\PreguntasController;
 
 Route::get('/', function () {
@@ -17,9 +18,8 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 
 Route::get('/mathbus', [PreguntasController::class, 'mathbus'])->name('mathbus');
 
-Route::get('/mathmatch', function () {
-    return view('mathmatch');
-})->name('mathmatch');
+Route::get('/mathmatch', [MathmatchController::class, 'index'])->name('mathmatch');
+Route::get('/api/mathmatch/questions', [PreguntasController::class, 'getPreguntasMathmatch'])->name('mathmatch.questions');
 
 Route::get('/cortacesped', function () {
     return view('cortacesped');
