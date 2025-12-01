@@ -16,7 +16,7 @@ Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
 
-Route::get('/mathbus/{idJuego}', [PreguntasController::class, 'index'])->name('mathbus');
+Route::get('/mathbus', [PreguntasController::class, 'mathbus'])->name('mathbus');
 
 Route::get('/mathmatch', [MathmatchController::class, 'index'])->name('mathmatch');
 Route::get('/api/mathmatch/questions', [PreguntasController::class, 'getPreguntasMathmatch'])->name('mathmatch.questions');
