@@ -1,6 +1,6 @@
 // Variables del juego
 let preguntas = [], preguntasDisponibles = [], preguntaActual = null, pasosUsuario = [];
-let score = 0, currentDefense = 1, totalDefensas = 5, tiempo = 30, timerInterval = null;
+let score = 0, currentDefense = 1, totalDefensas = 5, tiempo = 0, timerInterval = null;
 let currentNumber = 0, numeroInicial = 0;
 
 // Cargar preguntas
@@ -26,13 +26,10 @@ function initGame(resetTimer = true) {
     
     if (resetTimer) {
         score = 0;
-        tiempo = 30;
+        tiempo = 0;
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
-            if (--tiempo <= 0) {
-                clearInterval(timerInterval);
-                gameOver('time');
-            }
+            tiempo++;
             updateDisplay();
         }, 1000);
     }
@@ -50,7 +47,7 @@ function updateDisplay() {
     
     const timer = document.getElementById('timer');
     timer.textContent = tiempo;
-    timer.className = tiempo <= 10 ? 'text-3xl font-bold text-red-600' : "";
+    timer.className = 'text-3xl font-bold text-blue-600';
                       
 }
 
@@ -60,7 +57,10 @@ function showDefense() {
     const stack = document.createElement('div');
     stack.id = 'defense-stack';
     stack.className = 'absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out flex flex-col gap-4 items-center';
-    stack.style.left = `${10 + ((currentDefense - 1) / (totalDefensas - 1)) * 88}%`;
+    
+    // Calcular posición: de 10% a 98%
+    const progreso = totalDefensas > 1 ? (currentDefense - 1) / (totalDefensas - 1) : 1;
+    stack.style.left = `${10 + progreso * 88}%`;
     
     if (currentDefense < totalDefensas) {
         generarOpcionesAleatorias(currentNumber, obtenerDivisorMasPequeno(currentNumber))
@@ -132,16 +132,18 @@ function selectOption(number) {
         if (number !== obtenerDivisorMasPequeno(currentNumber)) return gameOver('wrong');
         pasosUsuario.push(number);
         currentNumber /= number;
-        score += 10;
+        score += 1;
         currentDefense++;
         updateDisplay();
         showSuccessAnimation();
         setTimeout(showDefense, 500);
     } else {
-        if (number !== currentNumber) return gameOver('wrong');
+        // Última defensa: verificar que sea el divisor más pequeño (el número primo final)
+        const divisorCorrecto = obtenerDivisorMasPequeno(currentNumber);
+        if (number !== divisorCorrecto) return gameOver('wrong');
         pasosUsuario.push(number);
         currentNumber /= number;
-        score += 50;
+        score += 1;
         updateDisplay();
         verificarSolucionCompleta();
     }
@@ -183,16 +185,14 @@ function shootPenalty(choice) {
         document.querySelector('#gameScreen > div').style.backgroundImage = "url('/img/Campo_MathMatch.png')";
         
         if (choice === gkChoice) {
-            score = Math.max(0, score - 70);
-            updateDisplay();
-            document.getElementById('miss-score').textContent = score;
-            document.getElementById('miss-modal').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('miss-modal').classList.add('hidden');
-                nextRound();
-            }, 2000);
+            // Portero paró el penalti - Game Over
+            clearInterval(timerInterval);
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-time').textContent = tiempo;
+            document.getElementById('game-over-reason').textContent = '¡El portero paró tu penalti!';
+            document.getElementById('game-over-modal').classList.remove('hidden');
         } else {
-            score += 50;
+            score += 5;
             updateDisplay();
             showGoalModal();
         }
@@ -229,8 +229,8 @@ function showSuccessAnimation() {
 function gameOver(reason = 'wrong') {
     clearInterval(timerInterval);
     document.getElementById('final-score').textContent = score;
-    document.getElementById('defenses-passed').textContent = `${currentDefense - 1}/${totalDefensas}`;
-    document.getElementById('game-over-reason').textContent = reason === 'time' ? '¡Se acabó el tiempo!' : 'Respuesta incorrecta';
+    document.getElementById('final-time').textContent = tiempo + ' segundos';
+    document.getElementById('game-over-reason').textContent = 'Respuesta incorrecta';
     document.getElementById('game-over-modal').classList.remove('hidden');
 }
 
