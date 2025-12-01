@@ -83,7 +83,8 @@ class JuegosSesionController extends Controller
             // Logica de juego completado de Cortacesped
         } elseif ($idJuego == 3) { // Mathmatch
             $numeroNivel = 3;
-            // Logica de juego completado de Mathmatch
+            // Completado cuando se descomponen correctamente 5 números
+            $completado = ($request->numerosCompletados ?? 0) >= 5 ? 1 : 0;
         } elseif ($idJuego == 4) { // Entrevista
             $numeroNivel = 4;
             // Logica de juego completado de Entrevista

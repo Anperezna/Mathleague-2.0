@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="w-full h-screen flex justify-center items-center bg-gradient-to-b from-green-100 to-green-300">
 
     <div class="w-[1200px] h-[700px] relative">
@@ -103,7 +104,7 @@
         </div>
 
         <!-- ========== GAME OVER ========== -->
-        <div id="game-over-modal" class="hidden absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div id="game-over-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div class="bg-white p-8 rounded-xl text-center shadow-lg">
                 <h2 class="text-3xl font-bold mb-4">¡Fin del Juego!</h2>
                 <p id="game-over-reason" class="text-xl text-gray-700 mb-4">Respuesta incorrecta</p>
@@ -111,9 +112,12 @@
                     Puntuación final: 
                     <span id="final-score" class="font-bold text-green-600">0</span>
                 </p>
-                <p class="text-lg text-gray-600 mb-6">Defensas superadas: <span id="defenses-passed" class="font-bold">0</span>/5</p>
+                <p class="text-lg text-gray-600 mb-6">Tiempo jugado: <span id="final-time" class="font-bold">0</span> segundos</p>
                 
-                <button onclick="resetToMenu()" class="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+                <button onclick="restartGame()" class="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+                    Volver a jugar
+                </button>
+                <button onclick="resetToMenu()" class="ml-4 px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
                     Volver al menú
                 </button>
             </div>
