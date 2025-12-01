@@ -64,12 +64,44 @@
                         </div>
                     </div>
 
+                    <!-- Pantalla de Penalti -->
+                    <div id="penalty-screen" class="hidden fixed inset-0 bg-[url('/img/porteria_mathmatch.png')] bg-cover bg-center flex items-center justify-center z-50">
+                        <div class="relative w-full h-full flex items-center justify-center">
+                            <!-- Portero -->
+                            <img id="goalkeeper" src="{{ asset('img/portero_mathmatch.png') }}" alt="Portero" class="absolute w-32 h-auto transition-all duration-300" style="bottom: 25%; left: 50%; transform: translateX(-50%); width: 550px;">
+                            
+                            <!-- Botones de tiro (4 esquinas) -->
+                            <button onclick="shootPenalty('top-left')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="top: 20%; left: 15%;">
+                                ¡CHUTA!
+                            </button>
+                            <button onclick="shootPenalty('top-right')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="top: 20%; right: 15%;">
+                                ¡CHUTA!
+                            </button>
+                            <button onclick="shootPenalty('bottom-left')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="bottom: 20%; left: 15%;">
+                                ¡CHUTA!
+                            </button>
+                            <button onclick="shootPenalty('bottom-right')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="bottom: 20%; right: 15%;">
+                                ¡CHUTA!
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Modal de Gol -->
                     <div id="goal-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
                         <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
                             <h2 class="text-6xl font-bold text-white mb-4 drop-shadow-lg">⚽ ¡GOLAZO! ⚽</h2>
-                            <p class="text-3xl font-bold text-yellow-300 mb-2 drop-shadow-md">+50 puntos</p>
+                            <p class="text-3xl font-bold text-yellow-300 mb-2 drop-shadow-md" id="goal-points">+50 puntos</p>
                             <p class="text-xl text-white mb-4">Puntuación: <span id="goal-score" class="font-bold text-yellow-200">0</span></p>
+                            <p class="text-lg text-white/90 animate-pulse">Siguiente número...</p>
+                        </div>
+                    </div>
+
+                    <!-- Modal de Fallo -->
+                    <div id="miss-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                        <div class="bg-gradient-to-br from-red-400 to-red-600 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
+                            <h2 class="text-6xl font-bold text-white mb-4 drop-shadow-lg">😢 ¡Atajada! 😢</h2>
+                            <p class="text-3xl font-bold text-yellow-300 mb-2 drop-shadow-md">-10 puntos</p>
+                            <p class="text-xl text-white mb-4">Puntuación: <span id="miss-score" class="font-bold text-yellow-200">0</span></p>
                             <p class="text-lg text-white/90 animate-pulse">Siguiente número...</p>
                         </div>
                     </div>
