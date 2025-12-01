@@ -160,7 +160,86 @@ function verificarSolucionCompleta() {
                       pasosUsuario.length === solucionCorrecta.length &&
                       pasosUsuario.every((paso, i) => paso === solucionCorrecta[i]);
     
-    esCorrecto ? showGoalModal() : gameOver('wrong');
+    if (esCorrecto) {
+        // Cambiar fondo del campo a portería
+        const gameContainer = document.querySelector('#gameScreen > div');
+        gameContainer.style.backgroundImage = "url('/img/porteria_mathmatch.png')";
+        
+        // Mostrar pantalla de penalti después de un pequeño delay
+        setTimeout(() => {
+            showPenaltyScreen();
+        }, 300);
+    } else {
+        gameOver('wrong');
+    }
+}
+
+function showPenaltyScreen() {
+    document.getElementById('penalty-screen').classList.remove('hidden');
+    // Resetear posición del portero
+    const goalkeeper = document.getElementById('goalkeeper');
+    goalkeeper.style.bottom = '25%';
+    goalkeeper.style.left = '50%';
+    goalkeeper.style.transform = 'translateX(-50%)';
+}
+
+function shootPenalty(playerChoice) {
+    // Deshabilitar botones
+    document.querySelectorAll('#penalty-screen button').forEach(btn => btn.disabled = true);
+    
+    const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+    const goalkeeperChoice = positions[Math.floor(Math.random() * positions.length)];
+    
+    // Mover portero a la posición elegida aleatoriamente
+    moveGoalkeeper(goalkeeperChoice);
+    
+    // Esperar animación y verificar resultado
+    setTimeout(() => {
+        document.getElementById('penalty-screen').classList.add('hidden');
+        
+        // Restaurar fondo del campo
+        const gameContainer = document.querySelector('#gameScreen > div');
+        gameContainer.style.backgroundImage = "url('/img/Campo_MathMatch.png')";
+        
+        if (playerChoice === goalkeeperChoice) {
+            // Atajada - resta puntos
+            score -= 70;
+            if (score < 0) score = 0;
+            updateDisplay();
+            document.getElementById('miss-score').textContent = score;
+            document.getElementById('miss-modal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('miss-modal').classList.add('hidden');
+                nextRound();
+            }, 2000);
+        } else {
+            // ¡Gol! - suma puntos extras
+            score += 50;
+            updateDisplay();
+            showGoalModal();
+        }
+        
+        // Habilitar botones de nuevo
+        document.querySelectorAll('#penalty-screen button').forEach(btn => btn.disabled = false);
+    }, 800);
+}
+
+function moveGoalkeeper(position) {
+    const goalkeeper = document.getElementById('goalkeeper');
+    
+    // Posiciones del portero según la elección
+    const goalkeeperPositions = {
+        'top-left': { bottom: '45%', left: '15%', transform: 'translateX(0)' },
+        'top-right': { bottom: '45%', left: '70%', transform: 'translateX(0)' },
+        'bottom-left': { bottom: '15%', left: '15%', transform: 'translateX(0)' },
+        'bottom-right': { bottom: '15%', left: '70%', transform: 'translateX(0)' }
+    };
+    
+    // Aplicar la posición del portero
+    const pos = goalkeeperPositions[position];
+    goalkeeper.style.bottom = pos.bottom;
+    goalkeeper.style.left = pos.left;
+    goalkeeper.style.transform = pos.transform;
 }
 
 function showSuccessAnimation() {
@@ -182,8 +261,12 @@ function gameOver(reason = 'wrong') {
 
 function showGoalModal() {
     document.getElementById('goal-score').textContent = score;
+    document.getElementById('goal-points').textContent = '+70 puntos';
     document.getElementById('goal-modal').classList.remove('hidden');
-    setTimeout(nextRound, 2000);
+    setTimeout(() => {
+        document.getElementById('goal-modal').classList.add('hidden');
+        nextRound();
+    }, 2000);
 }
 
 function restartGame() {
@@ -197,4 +280,3 @@ function nextRound() {
     initGame(false);
 }
 
-// No cargar automáticamente, esperar a que el menú inicie el juego
