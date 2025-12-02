@@ -6,17 +6,14 @@
     'marginBottom' => 'mb-5',
 ])
 
-<nav class="flex items-center justify-between px-6 {{ $width }} {{ $height }} bg-[{{ $bg_color }} ] {{ $marginBottom }} {{ $marginTop }}">
-    <x-botones text="APRENDIZAJE" href="{{ route('aprendizaje') }}" color="transparent" border_color="transparent" text_color="#000" size="lg" height="large" >
+<nav class="flex items-center justify-between px-6 {{ $width }} {{ $height }} {{ $marginBottom }} {{ $marginTop }}" style="background-color: {{ $bg_color }};">
+    <x-botones text="APRENDIZAJE" href="{{ route('aprendizaje') }}" color="transparent" border_color="transparent" text_color="#fff" size="lg" height="large">
     </x-botones>
-    <x-botones text="JUEGOS" href="{{ route('juegos') }}" color="#transparent" border_color="transparent" text_color="#000" size="lg" height="large">
-
+    <x-botones text="JUEGOS" href="{{ route('juegos') }}" color="transparent" border_color="transparent" text_color="#fff" size="lg" height="large">
     </x-botones>
     <img src="img/logo.png" alt="" class="w-[180px]">
-    <x-botones text="SOBRE NOSOTROS" href="{{ route('about') }}" color="#transparent" border_color="transparent" text_color="#000" size="lg" height="large">
-
+    <x-botones text="SOBRE NOSOTROS" href="{{ route('about') }}" color="transparent" border_color="transparent" text_color="#fff" size="lg" height="large">
     </x-botones>
-    <x-botones text="PERFIL" href="{{ route('perfil') }}" color="#transparent" border_color="transparent" text_color="#000" size="lg" height="large">
-
+    <x-botones text="PERFIL" href="{{ route('perfil') }}" color="transparent" border_color="transparent" text_color="#fff" size="lg" height="large">
     </x-botones>    
 </nav>
