@@ -7,7 +7,7 @@
 ])
 
 <nav class="flex items-center justify-between px-6 {{ $width }} {{ $height }} {{ $marginBottom }} {{ $marginTop }}" style="background-color: {{ $bg_color }};">
-    <x-botones text="APRENDIZAJE" href="{{ route('aprendizaje') }}" color="transparent" border_color="transparent" text_color="#fff" size="lg" height="large">
+    <x-botones text="RANKING" href="{{ route('ranking') }}" color="transparent" border_color="transparent" text_color="#fff" size="lg" height="large">
     </x-botones>
     <x-botones text="JUEGOS" href="{{ route('juegos') }}" color="transparent" border_color="transparent" text_color="#fff" size="lg" height="large">
     </x-botones>
