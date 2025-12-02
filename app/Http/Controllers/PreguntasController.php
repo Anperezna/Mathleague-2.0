@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Preguntas;
+use App\Models\Juegos;
 use Illuminate\Http\Request;
 
 class PreguntasController extends Controller
@@ -12,9 +13,7 @@ class PreguntasController extends Controller
      */
     public function index($idJuego)
     {
-        //
-        $preguntas = Preguntas::where('id_juego', $idJuego)->get();
-        return view('mathbus', compact('preguntas'));
+        // 
     }
 
     /**
@@ -63,5 +62,31 @@ class PreguntasController extends Controller
     public function destroy(Preguntas $preguntas)
     {
         //
+    }
+
+    public function mathbus()
+    {
+        // Traemos el juego Mathbus con todas sus preguntas y opciones asociadas
+        $juego = Juegos::with(['preguntas' => function($query) {
+            $query->inRandomOrder();
+        }, 'preguntas.opciones'])->where('nombre', 'Mathbus')->first();
+
+        $preguntas = $juego ? $juego->preguntas : collect();
+
+        // Retornamos la vista con las preguntas y opciones
+        return view('mathbus', compact('preguntas'));
+    }
+
+    public function mathmatch()
+    {
+        // Traemos el juego MathMatch con todas sus preguntas y opciones asociadas
+        $juego = Juegos::with(['preguntas' => function($query) {
+            $query->inRandomOrder();
+        }, 'preguntas.opciones'])->where('nombre', 'MathMatch')->first();
+
+        $preguntas = $juego ? $juego->preguntas : collect();
+
+        // Retornamos la vista con las preguntas y opciones
+        return view('mathmatch', compact('preguntas'));
     }
 }
