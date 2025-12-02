@@ -20,8 +20,7 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 Route::get('/mathbus', [PreguntasController::class, 'mathbus'])->name('mathbus');
 Route::post('/guardar-sesion', [JuegosSesionController::class, 'guardarSesion'])->name('guardar.sesion');
 
-Route::get('/mathmatch', [MathmatchController::class, 'index'])->name('mathmatch');
-Route::get('/api/mathmatch/questions', [PreguntasController::class, 'getPreguntasMathmatch'])->name('mathmatch.questions');
+Route::get('/mathmatch', [PreguntasController::class, 'mathmatch'])->name('mathmatch');
 
 Route::get('/cortacesped', function () {
     return view('cortacesped');

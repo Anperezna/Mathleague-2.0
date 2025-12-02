@@ -17,11 +17,12 @@
             </button>
 
             <div class="text-gray-700 space-y-1">
-                <p>⚽ Divide el número usando siempre el divisor más pequeño</p>
-                <p>🛡️ Supera cada defensa eligiendo el divisor correcto</p>
-                <p>🎯 Llega al número primo final para marcar gol</p>
-                <p>⏱️ ¡Marca tantos goles como puedas antes de que se acabe el tiempo!</p>
-                <p>💯 +10 puntos por cada defensa, +50 por cada gol</p>
+                <p>⚽ Divide el número usando siempre el divisor más pequeño (primo)</p>
+                <p>🛡️ Supera 5 defensas eligiendo el divisor correcto en cada una</p>
+                <p>🎯 Completa la factorización para tirar el penalti</p>
+                <p>⏱️ El tiempo corre: ¡Completa 5 números para ganar!</p>
+                <p>💯 +1 punto por defensa superada, +5 puntos por gol marcado</p>
+                <p>❌ Pierdes si eliges un divisor incorrecto o el portero para tu tiro</p>
             </div>
         </div>
 
@@ -126,15 +127,15 @@
     </div>
 </div>
 
+<script>
+    window.preguntas = @json($preguntas);
+</script>
 <script src="{{ asset('js/mathmatch.js') }}"></script>
 <script>
 function startGame() {
     document.getElementById('menuScreen').classList.add('hidden');
     document.getElementById('gameScreen').classList.remove('hidden');
-    // Iniciar el juego solo después de mostrar la pantalla
-    if (typeof loadQuestions === 'function') {
-        loadQuestions();
-    }
+    initGame();
 }
 
 function resetToMenu() {
