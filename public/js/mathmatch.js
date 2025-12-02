@@ -3,18 +3,13 @@ let preguntas = [], preguntasDisponibles = [], preguntaActual = null, pasosUsuar
 let score = 0, currentDefense = 1, totalDefensas = 5, tiempo = 0, timerInterval = null;
 let currentNumber = 0, numeroInicial = 0, fallos = 0, intentos = 0, numerosCompletados = 0;
 
-// Cargar preguntas
-async function loadQuestions() {
-    const res = await fetch('/api/mathmatch/questions');
-    const data = await res.json();
-    if (data.success) {
-        preguntas = preguntasDisponibles = data.preguntas;
-        initGame();
-    }
-}
-
 // Inicializar juego
 function initGame(resetTimer = true) {
+    // Cargar preguntas de window.preguntas si aún no se han cargado
+    if (!preguntas.length && window.preguntas) {
+        preguntas = preguntasDisponibles = window.preguntas;
+    }
+    
     if (!preguntas.length) return;
     if (!preguntasDisponibles.length) preguntasDisponibles = [...preguntas];
     
@@ -22,7 +17,11 @@ function initGame(resetTimer = true) {
     numeroInicial = currentNumber = parseInt(preguntaActual.enunciado.match(/\d+/)[0]);
     pasosUsuario = [];
     currentDefense = 1;
-    totalDefensas = String(preguntaActual.solucion_correcta).length;
+    // Obtener la solución correcta desde opciones
+    const solucionCorrecta = preguntaActual.opciones && preguntaActual.opciones[0] 
+        ? preguntaActual.opciones[0].esCorrecta 
+        : preguntaActual.solucion_correcta;
+    totalDefensas = String(solucionCorrecta).length;
     
     if (resetTimer) {
         score = 0;
