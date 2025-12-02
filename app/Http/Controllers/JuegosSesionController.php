@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Juegos_Sesion;
+use App\Models\Sesiones;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 
 class JuegosSesionController extends Controller
 {
@@ -61,5 +63,58 @@ class JuegosSesionController extends Controller
     public function destroy(Juegos_Sesion $juegos_Sesion)
     {
         //
+    }
+
+    /**
+     * Guardar la sesión del juego
+     */
+    public function guardarSesion(Request $request)
+    {
+        $idJuego = $request->id_juego;
+        $numeroNivel = 1;
+        $completado = 0;
+        
+        // Configuración específica por juego
+        if ($idJuego == 1) { // Mathbus
+            $numeroNivel = 1;
+            $completado = $request->puntos >= 10 ? 1 : 0;
+        } elseif ($idJuego == 2) { // Cortacesped
+            $numeroNivel = 2;
+            // Logica de juego completado de Cortacesped
+        } elseif ($idJuego == 3) { // Mathmatch
+            $numeroNivel = 3;
+            // Completado cuando se descomponen correctamente 5 números
+            $completado = ($request->numerosCompletados ?? 0) >= 5 ? 1 : 0;
+        } elseif ($idJuego == 4) { // Entrevista
+            $numeroNivel = 4;
+            // Logica de juego completado de Entrevista
+        }
+
+        // Obtener o crear una sesión completa para el usuario autenticado
+        $sesion = Sesiones::firstOrCreate(
+            ['id_usuario' => auth()->id()],
+            [
+                'tiempo' => now(),
+                'duracion_sesion' => 0,
+                'intentos' => 0,
+                'errores' => 0,
+                'puntos' => 0,
+                'ayuda' => 0,
+                'nivelCompletado' => 0
+            ]
+        );
+
+        Juegos_Sesion::create([
+            'numero_nivel' => $numeroNivel,
+            'duracion_nivel' => $request->tiempo,
+            'completado' => $completado,
+            'errores_nivel' => $request->fallos,
+            'intentos_nivel' => $request->intentos ?? ($request->puntos + $request->fallos),
+            'puntuacion' => $request->puntos,
+            'id_sesionCompleta' => $sesion->id_sesion,
+            'id_juego' => $idJuego,
+        ]);
+
+        return response()->json(['success' => true]);
     }
 }
