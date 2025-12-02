@@ -7,6 +7,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\MathmatchController;
 use App\Http\Controllers\PreguntasController;
 use App\Http\Controllers\JuegosSesionController;
+use App\Http\Controllers\JuegosController;
 
 Route::get('/', function () {
     return view('index');
@@ -23,47 +24,20 @@ Route::post('/guardar-sesion', [JuegosSesionController::class, 'guardarSesion'])
 
 Route::get('/mathmatch', [PreguntasController::class, 'mathmatch'])->name('mathmatch');
 
-Route::get('/cortacesped', function () {
-    return view('cortacesped');
-})->name('cortacesped');
+Route::get('/cortacesped', [JuegosController::class, 'cortacesped'])->name('cortacesped');
 
-Route::get('/entrevista', function () {
-    return view('entrevista');
-})->name('entrevista');
+Route::get('/entrevista', [JuegosController::class, 'entrevista'])->name('entrevista');
 
 Route::get('/perfil', function () {
     return view('perfil');
 })->name('perfil');
 
-Route::get('/juegos', function () {
-    // Obtener juegos completados por el usuario autenticado
-    $juegosCompletados = [];
-    $juegos = [
-        ['fondos' => 'mathbus.png', 'ruta' => 'mathbus', 'idJuego' => 1],
-        ['fondos' => 'manolo.png', 'ruta' => 'cortacesped', 'idJuego' => 2],
-        ['fondos' => 'mathmatch.png', 'ruta' => 'mathmatch', 'idJuego' => 3],
-        ['fondos' => 'mathentrevista.png', 'ruta' => 'entrevista', 'idJuego' => 4],
-    ];
-
-    if(auth()->check()){
-        $sesion = Sesiones::with('sesionesJuego')->where('id_usuario', auth()->id())->first();
-        foreach($sesion->sesionesJuego as $sj){
-            if($sj->completado){
-                $juegosCompletados[] = $sj->id_juego;
-            }
-        }
-    }
-
-     
-
-
-    return view('juegos', compact('juegos','juegosCompletados'));
-})->name('juegos');
+Route::get('/juegos', [JuegosController::class, 'index'])->name('juegos');
 
 Route::get('/about', function () {
     return view('about');
 })->name('about');
 
-Route::get('/aprendizaje', function () {
-    return view('aprendizaje');
-})->name('aprendizaje');
+Route::get('/ranking', function () {
+    return view('ranking');
+})->name('ranking');
