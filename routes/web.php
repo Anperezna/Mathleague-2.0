@@ -36,7 +36,17 @@ Route::get('/perfil', function () {
 })->name('perfil');
 
 Route::get('/juegos', function () {
-    return view('juegos');
+    // Obtener juegos completados por el usuario autenticado
+    $juegosCompletados = [];
+    if (auth()->check()) {
+        $juegosCompletados = \App\Models\Juegos_Sesion::join('sesionesCompleta', 'sesionesJuego.id_sesionCompleta', '=', 'sesionesCompleta.id_sesion')
+            ->where('sesionesCompleta.id_usuario', auth()->id())
+            ->where('sesionesJuego.completado', 1)
+            ->distinct()
+            ->pluck('sesionesJuego.id_juego')
+            ->toArray();
+    }
+    return view('juegos', compact('juegosCompletados'));
 })->name('juegos');
 
 Route::get('/about', function () {

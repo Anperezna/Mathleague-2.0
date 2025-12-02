@@ -90,14 +90,28 @@ class JuegosSesionController extends Controller
             // Logica de juego completado de Entrevista
         }
 
+        // Obtener o crear una sesión completa para el usuario autenticado
+        $sesion = Sesiones::firstOrCreate(
+            ['id_usuario' => auth()->id()],
+            [
+                'tiempo' => now(),
+                'duracion_sesion' => 0,
+                'intentos' => 0,
+                'errores' => 0,
+                'puntos' => 0,
+                'ayuda' => 0,
+                'nivelCompletado' => 0
+            ]
+        );
+
         Juegos_Sesion::create([
             'numero_nivel' => $numeroNivel,
             'duracion_nivel' => $request->tiempo,
             'completado' => $completado,
             'errores_nivel' => $request->fallos,
-            'intentos_nivel' => $request->puntos + $request->fallos,
+            'intentos_nivel' => $request->intentos ?? ($request->puntos + $request->fallos),
             'puntuacion' => $request->puntos,
-            'id_sesionCompleta' => 1,
+            'id_sesionCompleta' => $sesion->id_sesion,
             'id_juego' => $idJuego,
         ]);
 
