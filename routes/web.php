@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Sesiones;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
@@ -37,15 +38,26 @@ Route::get('/perfil', function () {
 Route::get('/juegos', function () {
     // Obtener juegos completados por el usuario autenticado
     $juegosCompletados = [];
-    if (auth()->check()) {
-        $juegosCompletados = \App\Models\Juegos_Sesion::join('sesionesCompleta', 'sesionesJuego.id_sesionCompleta', '=', 'sesionesCompleta.id_sesion')
-            ->where('sesionesCompleta.id_usuario', auth()->id())
-            ->where('sesionesJuego.completado', 1)
-            ->distinct()
-            ->pluck('sesionesJuego.id_juego')
-            ->toArray();
+    $juegos = [
+        ['fondos' => 'mathbus.png', 'ruta' => 'mathbus', 'idJuego' => 1],
+        ['fondos' => 'manolo.png', 'ruta' => 'cortacesped', 'idJuego' => 2],
+        ['fondos' => 'mathmatch.png', 'ruta' => 'mathmatch', 'idJuego' => 3],
+        ['fondos' => 'mathentrevista.png', 'ruta' => 'entrevista', 'idJuego' => 4],
+    ];
+
+    if(auth()->check()){
+        $sesion = Sesiones::with('sesionesJuego')->where('id_usuario', auth()->id())->first();
+        foreach($sesion->sesionesJuego as $sj){
+            if($sj->completado){
+                $juegosCompletados[] = $sj->id_juego;
+            }
+        }
     }
-    return view('juegos', compact('juegosCompletados'));
+
+     
+
+
+    return view('juegos', compact('juegos','juegosCompletados'));
 })->name('juegos');
 
 Route::get('/about', function () {
