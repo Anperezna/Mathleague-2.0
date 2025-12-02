@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="w-full h-screen flex justify-center items-center bg-gradient-to-b from-green-100 to-green-300">
 
     <div class="w-[1200px] h-[700px] relative">
@@ -16,11 +17,12 @@
             </button>
 
             <div class="text-gray-700 space-y-1">
-                <p>⚽ Divide el número usando siempre el divisor más pequeño</p>
-                <p>🛡️ Supera cada defensa eligiendo el divisor correcto</p>
-                <p>🎯 Llega al número primo final para marcar gol</p>
-                <p>⏱️ ¡Marca tantos goles como puedas antes de que se acabe el tiempo!</p>
-                <p>💯 +10 puntos por cada defensa, +50 por cada gol</p>
+                <p>⚽ Divide el número usando siempre el divisor más pequeño (primo)</p>
+                <p>🛡️ Supera 5 defensas eligiendo el divisor correcto en cada una</p>
+                <p>🎯 Completa la factorización para tirar el penalti</p>
+                <p>⏱️ El tiempo corre: ¡Completa 5 números para ganar!</p>
+                <p>💯 +1 punto por defensa superada, +5 puntos por gol marcado</p>
+                <p>❌ Pierdes si eliges un divisor incorrecto o el portero para tu tiro</p>
             </div>
         </div>
 
@@ -90,27 +92,20 @@
                     <div id="goal-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
                         <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
                             <h2 class="text-6xl font-bold text-white mb-4 drop-shadow-lg">⚽ ¡GOLAZO! ⚽</h2>
-                            <p class="text-3xl font-bold text-yellow-300 mb-2 drop-shadow-md" id="goal-points">+50 puntos</p>
+                            <p class="text-3xl font-bold text-yellow-300 mb-2 drop-shadow-md" id="goal-points">+5 puntos</p>
                             <p class="text-xl text-white mb-4">Puntuación: <span id="goal-score" class="font-bold text-yellow-200">0</span></p>
                             <p class="text-lg text-white/90 animate-pulse">Siguiente número...</p>
                         </div>
                     </div>
 
-                    <!-- Modal de Fallo -->
-                    <div id="miss-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-                        <div class="bg-gradient-to-br from-red-400 to-red-600 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
-                            <h2 class="text-6xl font-bold text-white mb-4 drop-shadow-lg">😢 ¡Atajada! 😢</h2>
-                            <p class="text-3xl font-bold text-yellow-300 mb-2 drop-shadow-md">-10 puntos</p>
-                            <p class="text-xl text-white mb-4">Puntuación: <span id="miss-score" class="font-bold text-yellow-200">0</span></p>
-                            <p class="text-lg text-white/90 animate-pulse">Siguiente número...</p>
-                        </div>
+                       
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- ========== GAME OVER ========== -->
-        <div id="game-over-modal" class="hidden absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div id="game-over-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div class="bg-white p-8 rounded-xl text-center shadow-lg">
                 <h2 class="text-3xl font-bold mb-4">¡Fin del Juego!</h2>
                 <p id="game-over-reason" class="text-xl text-gray-700 mb-4">Respuesta incorrecta</p>
@@ -118,9 +113,12 @@
                     Puntuación final: 
                     <span id="final-score" class="font-bold text-green-600">0</span>
                 </p>
-                <p class="text-lg text-gray-600 mb-6">Defensas superadas: <span id="defenses-passed" class="font-bold">0</span>/5</p>
+                <p class="text-lg text-gray-600 mb-6">Tiempo jugado: <span id="final-time" class="font-bold">0</span> segundos</p>
                 
-                <button onclick="resetToMenu()" class="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+                <button onclick="restartGame()" class="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+                    Volver a jugar
+                </button>
+                <button onclick="resetToMenu()" class="ml-4 px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
                     Volver al menú
                 </button>
             </div>
@@ -129,15 +127,15 @@
     </div>
 </div>
 
+<script>
+    window.preguntas = @json($preguntas);
+</script>
 <script src="{{ asset('js/mathmatch.js') }}"></script>
 <script>
 function startGame() {
     document.getElementById('menuScreen').classList.add('hidden');
     document.getElementById('gameScreen').classList.remove('hidden');
-    // Iniciar el juego solo después de mostrar la pantalla
-    if (typeof loadQuestions === 'function') {
-        loadQuestions();
-    }
+    initGame();
 }
 
 function resetToMenu() {

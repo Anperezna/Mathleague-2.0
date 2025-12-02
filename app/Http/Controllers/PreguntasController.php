@@ -17,37 +17,6 @@ class PreguntasController extends Controller
     }
 
     /**
-     * Obtener preguntas para MathMatch (id_juego = 3) con opciones
-     */
-    public function getPreguntasMathmatch()
-    {
-        $preguntas = Preguntas::with('opciones')
-            ->where('id_juego', 3)
-            ->inRandomOrder()
-            ->get()
-            ->map(function ($pregunta) {
-                $opciones = $pregunta->opciones->first();
-                
-                return [
-                    'id_pregunta' => $pregunta->id_pregunta,
-                    'enunciado' => $pregunta->enunciado,
-                    'opciones' => [
-                        'opcion1' => $opciones->opcion1,
-                        'opcion2' => $opciones->opcion2,
-                        'opcion3' => $opciones->opcion3,
-                        'opcion4' => $opciones->opcion4,
-                    ],
-                    'solucion_correcta' => $opciones->esCorrecta
-                ];
-            });
-
-        return response()->json([
-            'success' => true,
-            'preguntas' => $preguntas
-        ]);
-    }
-
-    /**
      * Show the form for creating a new resource.
      */
     public function create()
@@ -106,5 +75,18 @@ class PreguntasController extends Controller
 
         // Retornamos la vista con las preguntas y opciones
         return view('mathbus', compact('preguntas'));
+    }
+
+    public function mathmatch()
+    {
+        // Traemos el juego MathMatch con todas sus preguntas y opciones asociadas
+        $juego = Juegos::with(['preguntas' => function($query) {
+            $query->inRandomOrder();
+        }, 'preguntas.opciones'])->where('nombre', 'MathMatch')->first();
+
+        $preguntas = $juego ? $juego->preguntas : collect();
+
+        // Retornamos la vista con las preguntas y opciones
+        return view('mathmatch', compact('preguntas'));
     }
 }

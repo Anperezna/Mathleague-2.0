@@ -11,7 +11,7 @@
 
                 <p class="text-lg">¡Mueve el bus con las flechas ↑ ↓ para recoger las respuestas correctas!</p>
 
-                <button onclick="game.start()"
+                <button onclick="game.inicio()"
                     class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow">
                     <p></p> Iniciar Juego
                 </button>
@@ -46,6 +46,10 @@
                         <div>Puntos: <span id="puntos" class="font-bold text-green-600">0</span></div>
                         <div>Fallos: <span id="fallos" class="font-bold text-red-600">0</span>/3</div>
                     </div>
+                    <button onclick="game.usarAyuda()"
+                        class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-lg shadow">
+                        Ayuda
+                    </button>
                 </div>
 
                 <!-- Área del juego -->
@@ -65,16 +69,27 @@
             <!-- ========== GAME OVER ========== -->
             <div id="gameOverModal" class="hidden absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
 
-                <div class="bg-white p-8 rounded-xl text-center shadow-lg">
-                    <h2 class="text-3xl font-bold mb-4">¡Fin del Juego!</h2>
-                    <p class="text-xl mb-6">
-                        Puntuación final:
-                        <span id="finalScore" class="font-bold text-blue-600">0</span>
-                    </p>
+                <div class="bg-white p-6 rounded-xl text-center shadow-lg max-w-md">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">¡Fin del Juego!</h2>
+                    
+                    <div class="space-y-3 mb-6 text-left">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Puntos:</span>
+                            <span id="finalPuntos" class="font-bold text-green-600">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Tiempo:</span>
+                            <span id="finalTiempo" class="font-bold text-blue-600">0s</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Errores:</span>
+                            <span id="finalErrores" class="font-bold text-red-600">0</span>
+                        </div>
+                    </div>
 
-                    <button onclick="game.reset()"
-                        class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
-                        Volver al menú
+                    <button onclick="window.location.href='/juegos'"
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 w-full">
+                        Cerrar
                     </button>
                 </div>
 

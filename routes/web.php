@@ -18,9 +18,9 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
 
 Route::get('/mathbus', [PreguntasController::class, 'mathbus'])->name('mathbus');
+Route::post('/guardar-sesion', [JuegosSesionController::class, 'guardarSesion'])->name('guardar.sesion');
 
-Route::get('/mathmatch', [MathmatchController::class, 'index'])->name('mathmatch');
-Route::get('/api/mathmatch/questions', [PreguntasController::class, 'getPreguntasMathmatch'])->name('mathmatch.questions');
+Route::get('/mathmatch', [PreguntasController::class, 'mathmatch'])->name('mathmatch');
 
 Route::get('/cortacesped', function () {
     return view('cortacesped');
@@ -39,7 +39,17 @@ Route::get('/perfil', function () {
 })->name('perfil');
 
 Route::get('/juegos', function () {
-    return view('juegos');
+    // Obtener juegos completados por el usuario autenticado
+    $juegosCompletados = [];
+    if (auth()->check()) {
+        $juegosCompletados = \App\Models\Juegos_Sesion::join('sesionesCompleta', 'sesionesJuego.id_sesionCompleta', '=', 'sesionesCompleta.id_sesion')
+            ->where('sesionesCompleta.id_usuario', auth()->id())
+            ->where('sesionesJuego.completado', 1)
+            ->distinct()
+            ->pluck('sesionesJuego.id_juego')
+            ->toArray();
+    }
+    return view('juegos', compact('juegosCompletados'));
 })->name('juegos');
 
 Route::get('/about', function () {
