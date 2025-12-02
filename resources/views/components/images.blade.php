@@ -1,33 +1,16 @@
-@props(['juegosCompletados' => []])
+@props(['juegosCompletados' => [],
+         'juegos' => []])
 
-@php
-    $juegos = [
-        ['fondos' => 'mathbus.png', 'ruta' => 'mathbus', 'idJuego' => 1],
-        ['fondos' => 'manolo.png', 'ruta' => 'cortacesped', 'idJuego' => 2],
-        ['fondos' => 'mathmatch.png', 'ruta' => 'mathmatch', 'idJuego' => 3],
-        ['fondos' => 'mathentrevista.png', 'ruta' => 'entrevista', 'idJuego' => 4],
-    ];
-    
-    // Convertir a array si es una colección
-    $juegosCompletadosArray = is_array($juegosCompletados) ? $juegosCompletados : $juegosCompletados->toArray();
-    
-    // Función para verificar si un juego está desbloqueado
-    $juegoDesbloqueado = function($idJuego) use ($juegosCompletadosArray) {
-        if ($idJuego == 1) return true; // Primer juego siempre desbloqueado
-        return in_array($idJuego - 1, $juegosCompletadosArray); // Desbloqueado si el anterior está completado
-    };
-@endphp
+
 
 <div class="flex flex-col gap-10 w-full py-10">
     @foreach (collect($juegos)->chunk(2) as $chunk)
         <div class="flex flex-wrap gap-10 justify-center items-center w-full">
             @foreach ($chunk as $juego)
-                @php
-                    $desbloqueado = $juegoDesbloqueado($juego['idJuego']);
-                @endphp
                 
+    
                 <div class="relative group">
-                    @if($desbloqueado)
+                    @if($juego['idJuego'] == 1 || in_array($juego['idJuego'] - 1, $juegosCompletados))
                         <a href="{{ route($juego['ruta'], ['idJuego' => $juego['idJuego']]) }}" 
                            class="block hover:opacity-80 hover:scale-105 transition-all duration-200 ease-in-out">
                             <img 
@@ -37,7 +20,7 @@
                             />
                         </a>
                     @else
-                        <div class="relative cursor-not-allowed">
+                        <div class="relative cursor-not-allowed">   
                             <img 
                                 src="{{ asset('img/juegos/' . $juego['fondos']) }}" 
                                 alt="{{ $juego['fondos'] }}" 
