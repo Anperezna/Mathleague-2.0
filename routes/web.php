@@ -1,11 +1,14 @@
 <?php
 
+use App\Models\Sesiones;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\MathmatchController;
 use App\Http\Controllers\PreguntasController;
 use App\Http\Controllers\CortacespedController;
+use App\Http\Controllers\JuegosSesionController;
+use App\Http\Controllers\JuegosController;
 
 Route::get('/', function () {
     return view('index');
@@ -22,40 +25,24 @@ Route::post('/guardar-sesion', [JuegosSesionController::class, 'guardarSesion'])
 
 Route::get('/mathmatch', [PreguntasController::class, 'mathmatch'])->name('mathmatch');
 
-Route::get('/cortacesped', function () {
-    return view('cortacesped');
-})->name('cortacesped');
+Route::get('/cortacesped', [JuegosController::class, 'cortacesped'])->name('cortacesped');
 
 // Rutas API para Cortacésped
 Route::post('/api/cortacesped/guardar', [CortacespedController::class, 'guardarResultado'])->name('cortacesped.guardar');
 Route::get('/api/cortacesped/ranking', [CortacespedController::class, 'obtenerRanking'])->name('cortacesped.ranking');
 
-Route::get('/entrevista', function () {
-    return view('entrevista');
-})->name('entrevista');
+Route::get('/entrevista', [JuegosController::class, 'entrevista'])->name('entrevista');
 
 Route::get('/perfil', function () {
     return view('perfil');
 })->name('perfil');
 
-Route::get('/juegos', function () {
-    // Obtener juegos completados por el usuario autenticado
-    $juegosCompletados = [];
-    if (auth()->check()) {
-        $juegosCompletados = \App\Models\Juegos_Sesion::join('sesionesCompleta', 'sesionesJuego.id_sesionCompleta', '=', 'sesionesCompleta.id_sesion')
-            ->where('sesionesCompleta.id_usuario', auth()->id())
-            ->where('sesionesJuego.completado', 1)
-            ->distinct()
-            ->pluck('sesionesJuego.id_juego')
-            ->toArray();
-    }
-    return view('juegos', compact('juegosCompletados'));
-})->name('juegos');
+Route::get('/juegos', [JuegosController::class, 'index'])->name('juegos');
 
 Route::get('/about', function () {
     return view('about');
 })->name('about');
 
-Route::get('/aprendizaje', function () {
-    return view('aprendizaje');
-})->name('aprendizaje');
+Route::get('/ranking', function () {
+    return view('ranking');
+})->name('ranking');

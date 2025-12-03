@@ -2,64 +2,54 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Juegos;
+use App\Models\Sesiones;
 use Illuminate\Http\Request;
 
 class JuegosController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra la página principal de juegos con el sistema de desbloqueo
      */
     public function index()
     {
-        //
+        $juegosCompletados = [];
+        $juegos = [
+            ['fondos' => 'mathbus.png', 'ruta' => 'mathbus', 'idJuego' => 1],
+            ['fondos' => 'manolo.png', 'ruta' => 'cortacesped', 'idJuego' => 2],
+            ['fondos' => 'mathmatch.png', 'ruta' => 'mathmatch', 'idJuego' => 3],
+            ['fondos' => 'mathentrevista.png', 'ruta' => 'entrevista', 'idJuego' => 4],
+        ];
+
+        if (auth()->check()) {
+            $sesion = Sesiones::with('sesionesJuego')
+                ->where('id_usuario', auth()->id())
+                ->first();
+            
+            if ($sesion) {
+                foreach ($sesion->sesionesJuego as $sj) {
+                    if ($sj->completado) {
+                        $juegosCompletados[] = $sj->id_juego;
+                    }
+                }
+            }
+        }
+
+        return view('juegos', compact('juegos', 'juegosCompletados'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Muestra la página de cortacésped
      */
-    public function create()
+    public function cortacesped()
     {
-        //
+        return view('cortacesped');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Muestra la página de entrevista
      */
-    public function store(Request $request)
+    public function entrevista()
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Juegos $juegos)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Juegos $juegos)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Juegos $juegos)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Juegos $juegos)
-    {
-        //
+        return view('entrevista');
     }
 }

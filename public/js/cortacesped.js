@@ -1,7 +1,6 @@
 // ====================================
 // JUEGO CORTACÉSPED MATEMÁTICO
 // Alumno: [Tu Nombre]
-// Fecha: Diciembre 2025
 // ====================================
 
 class CortacespedGame {
@@ -14,8 +13,8 @@ class CortacespedGame {
         document.body.appendChild(this.canvas);
 
         // ===== VARIABLES DEL JUEGO =====
-        this.gameTime = 120; // Tiempo total: 2 minutos
-        this.fuelTime = 20; // Gasolina inicial: 20 segundos
+        this.gameTime = 60; // Tiempo total: 2 minutos
+        this.fuelTime = 14; // Gasolina inicial: 14 segundos
         this.fuelCount = 2; // Bidones de gasolina
         this.score = 0; // Puntuación
         this.gameRunning = false; // ¿El juego está corriendo?
@@ -213,7 +212,7 @@ class CortacespedGame {
         // Si se acaba el tiempo de un bidón, restar bidón
         if (this.fuelTime <= 0) {
             this.fuelCount--;
-            this.fuelTime = 10; // Resetear a 10 segundos
+            this.fuelTime = 7; // Resetear a 7 segundos
         }
 
         // Fin del juego
@@ -255,11 +254,11 @@ class CortacespedGame {
                 if (fuel.isCorrect) {
                     // Respuesta correcta
                     this.fuelCount = Math.min(5, this.fuelCount + 1);
+                    this.fuelTime = 7; // Resetear tiempo a 7 segundos
                     this.score += 10;
                     this.currentOperation = this.generateOperation();
                 } else {
-                    // Respuesta incorrecta
-                    this.fuelTime = Math.max(3, this.fuelTime - 5);
+                    // Respuesta incorrecta - solo resta puntos, no suma tiempo
                     this.score = Math.max(0, this.score - 5);
                 }
                 return false; // Eliminar bidón
