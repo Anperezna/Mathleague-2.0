@@ -17,6 +17,7 @@ function initGame(resetTimer = true) {
     numeroInicial = currentNumber = parseInt(preguntaActual.enunciado.match(/\d+/)[0]);
     pasosUsuario = [];
     currentDefense = 1;
+    
     // Obtener la solución correcta desde opciones
     const solucionCorrecta = preguntaActual.opciones && preguntaActual.opciones[0] 
         ? preguntaActual.opciones[0].esCorrecta 
