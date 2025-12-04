@@ -119,8 +119,13 @@ const game = {
 
             let answer = document.createElement("div");
             answer.className =
-                "absolute right-0 text-white font-bold text-xl bg-blue-600 rounded-xl px-4 py-2 shadow-lg";
-            answer.style.top = Math.floor(Math.random() * (this.gameArea.clientHeight - 50)) + "px";
+                "absolute right-0 font-bold text-xl shadow-lg flex items-center justify-center";
+            answer.style.width = "60px";
+            answer.style.height = "60px";
+            answer.style.backgroundImage = "url('/img/mathbus/pelota.png')";
+            answer.style.backgroundSize = "cover";
+            answer.style.backgroundPosition = "center";
+            answer.style.top = Math.floor(Math.random() * (this.gameArea.clientHeight - 60)) + "px";
             answer.style.right = "-80px";
             answer.dataset.value = opcion.valor;
             answer.dataset.correcta = opcion.esCorrecta;
