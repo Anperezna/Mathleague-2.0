@@ -53,7 +53,7 @@
                 </div>
 
                 <!-- Área del juego -->
-                <div id="gameArea" class="relative h-[500px] bg-blue-200 overflow-hidden rounded-lg mt-4">
+                <div id="gameArea" class="relative h-[500px] bg-blue-200 overflow-hidden rounded-lg mt-4 bg-[url('/img/mathbus/fondo_mathbus.png')] bg-repeat-x">
 
                     <!-- Bus -->
                     <div id="bus" class="absolute left-4 w-24" style="top:150px;">
