@@ -191,6 +191,10 @@
         </div>
     </div>
 
+    <script>
+        // Inyectar preguntas desde la base de datos
+        window.preguntasDB = @json($preguntas);
+    </script>
     <script src="{{ asset('js/cortacesped.js') }}"></script>
 </body>
 </html>

@@ -40,6 +40,11 @@ class CortacespedGame {
         this.grassGrid = []; // Matriz del césped
         this.initGrassGrid(); // Inicializar césped
 
+        // ===== PREGUNTAS DESDE BASE DE DATOS =====
+        this.preguntasDB = window.preguntasDB || [];
+        this.preguntaIndex = 0;
+        this.preguntasUsadas = [];
+
         // ===== OPERACIÓN MATEMÁTICA =====
         this.currentOperation = this.generateOperation();
 
@@ -169,35 +174,85 @@ class CortacespedGame {
 
     // ===== GENERAR OPERACIÓN MATEMÁTICA =====
     generateOperation() {
-        const num1 = Math.floor(Math.random() * 20) + 1;
-        const num2 = Math.floor(Math.random() * 20) + 1;
-        const operations = ['+', '-'];
-        const op = operations[Math.floor(Math.random() * operations.length)];
+        // Si no hay preguntas de BD, generar aleatoriamente (fallback)
+        if (!this.preguntasDB || this.preguntasDB.length === 0) {
+            const num1 = Math.floor(Math.random() * 20) + 1;
+            const num2 = Math.floor(Math.random() * 20) + 1;
+            const operations = ['+', '-'];
+            const op = operations[Math.floor(Math.random() * operations.length)];
 
-        let result;
-        if (op === '+') {
-            result = num1 + num2;
-        } else {
-            result = Math.max(0, num1 - num2);
+            let result;
+            if (op === '+') {
+                result = num1 + num2;
+            } else {
+                result = Math.max(0, num1 - num2);
+            }
+
+            return {
+                text: `${num1} ${op} ${num2} = ?`,
+                answer: result,
+                opciones: [result]
+            };
+        }
+
+        // Obtener una pregunta no usada o reciclar si se acabaron
+        if (this.preguntasUsadas.length >= this.preguntasDB.length) {
+            this.preguntasUsadas = [];
+        }
+
+        let pregunta;
+        do {
+            this.preguntaIndex = Math.floor(Math.random() * this.preguntasDB.length);
+            pregunta = this.preguntasDB[this.preguntaIndex];
+        } while (this.preguntasUsadas.includes(this.preguntaIndex));
+
+        this.preguntasUsadas.push(this.preguntaIndex);
+
+        // Obtener las opciones de la pregunta
+        const opciones = pregunta.opciones || [];
+        let opcionesArray = [];
+        let respuestaCorrecta = null;
+
+        if (opciones.length > 0) {
+            const opcion = opciones[0];
+            opcionesArray = [
+                opcion.opcion1,
+                opcion.opcion2,
+                opcion.opcion3,
+                opcion.opcion4
+            ];
+            respuestaCorrecta = opcion.esCorrecta;
         }
 
         return {
-            text: `${num1} ${op} ${num2} = ?`,
-            answer: result
+            text: pregunta.enunciado,
+            answer: respuestaCorrecta,
+            opciones: opcionesArray
         };
     }
 
     // ===== CREAR BIDÓN QUE CAE =====
     spawnFuel() {
-        // 50% de probabilidad de ser correcto
-        const isCorrect = Math.random() > 0.5;
-        
         let answer;
-        if (isCorrect) {
-            answer = this.currentOperation.answer;
+        let isCorrect;
+
+        // Si hay opciones de la BD, usar una de ellas
+        if (this.currentOperation.opciones && this.currentOperation.opciones.length > 0) {
+            const opcionesDisponibles = [...this.currentOperation.opciones];
+            
+            // Elegir aleatoriamente una de las opciones
+            const randomIndex = Math.floor(Math.random() * opcionesDisponibles.length);
+            answer = opcionesDisponibles[randomIndex];
+            isCorrect = (answer === this.currentOperation.answer);
         } else {
-            // Respuesta incorrecta (número aleatorio)
-            answer = Math.floor(Math.random() * 40);
+            // Fallback: 50% de probabilidad de ser correcto
+            isCorrect = Math.random() > 0.5;
+            
+            if (isCorrect) {
+                answer = this.currentOperation.answer;
+            } else {
+                answer = Math.floor(Math.random() * 40);
+            }
         }
 
         // Añadir bidón al array
