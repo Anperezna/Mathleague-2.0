@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Juegos;
 use App\Models\Sesiones;
 use Illuminate\Http\Request;
+use App\Models\Juegos_Sesion;
 
 /**
  * Controlador para la gestión de juegos
@@ -37,19 +39,26 @@ class JuegosController extends Controller
             ['fondos' => 'mathbus.png', 'ruta' => 'mathbus', 'idJuego' => 1],
             ['fondos' => 'manolo.png', 'ruta' => 'cortacesped', 'idJuego' => 2],
             ['fondos' => 'mathmatch.png', 'ruta' => 'mathmatch', 'idJuego' => 3],
-
         ];
 
+        // Solo buscar progreso si el usuario está autenticado
         if (auth()->check()) {
-            $sesion = Sesiones::with('sesionesJuego')
-                ->where('id_usuario', auth()->id())
-                ->first();
+            $userId = auth()->id();
             
+            // Buscar SOLO la sesión del usuario actual
+            $sesion = Sesiones::where('id_usuario', $userId)->first();
+            
+            // Si el usuario NO tiene sesión, $juegosCompletados queda vacío
+            // Solo el juego 1 estará disponible
             if ($sesion) {
-                foreach ($sesion->sesionesJuego as $sj) {
-                    if ($sj->completado) {
-                        $juegosCompletados[] = $sj->id_juego;
-                    }
+                // Obtener SOLO las sesiones de juego completadas de ESTA sesión
+                $sesionesJuego = Juegos_Sesion::where('id_sesionCompleta', $sesion->id_sesion)
+                    ->where('completado', 1)
+                    ->get();
+                
+                // Agregar los IDs de juegos completados
+                foreach ($sesionesJuego as $sj) {
+                    $juegosCompletados[] = $sj->id_juego;
                 }
             }
         }

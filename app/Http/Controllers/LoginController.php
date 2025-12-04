@@ -54,4 +54,19 @@ class LoginController extends Controller
         }
         return $response; 
     }
+
+    /**
+     * Cierra la sesión del usuario autenticado
+     * 
+     * Termina la sesión actual del usuario y lo redirige
+     * a la página de registro.
+     * 
+     * @return \Illuminate\Http\RedirectResponse Redirección a register
+     */
+    public function logout()
+    {
+        Auth::logout();
+        session()->flush();
+        return redirect()->route('login');
+    }
 }
