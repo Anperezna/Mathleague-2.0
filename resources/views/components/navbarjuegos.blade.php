@@ -4,8 +4,9 @@
     'bg_color' => 'transparent',
     'marginTop' => 'mt-5',
     'marginBottom' => 'mb-5',
+    'color' => 'black',
 ])
 
-<nav class="fixed top-0 left-0 px-6 {{ $width }} {{ $height }} bg-[{{ $bg_color }} ] {{ $marginBottom }} {{ $marginTop }}">
+<nav class="fixed top-0 left-0 px-6 {{ $width }} {{ $height }} bg-[{{ $bg_color }} ] {{ $marginBottom }} {{ $marginTop }}" style="color: {{ $color }};">
     <img src="{{ asset('img/logo.png') }}" alt="Logo" class="w-[180px]">
 </nav>

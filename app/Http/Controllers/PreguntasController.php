@@ -6,6 +6,17 @@ use App\Models\Preguntas;
 use App\Models\Juegos;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador para la gestión de preguntas de juegos
+ * 
+ * Este controlador se encarga de cargar las preguntas asociadas a cada juego
+ * junto con sus opciones de respuesta desde la base de datos y pasarlas
+ * a las vistas correspondientes.
+ * 
+ * @package App\Http\Controllers
+ * @author Math League Team
+ * @version 1.0.0
+ */
 class PreguntasController extends Controller
 {
     /**
@@ -64,6 +75,20 @@ class PreguntasController extends Controller
         //
     }
 
+    /**
+     * Carga y muestra el juego MathBus con sus preguntas
+     * 
+     * Recupera el juego MathBus de la base de datos junto con todas sus
+     * preguntas y opciones asociadas. Las preguntas se cargan en orden
+     * aleatorio para cada sesión de juego. Inyecta los datos en la vista
+     * usando Blade para evitar llamadas API.
+     * 
+     * @return \Illuminate\View\View Vista mathbus con las preguntas en formato JSON
+     * 
+     * @see \App\Models\Juegos
+     * @see \App\Models\Preguntas
+     * @see \App\Models\Opciones
+     */
     public function mathbus()
     {
         // Traemos el juego Mathbus con todas sus preguntas y opciones asociadas
@@ -77,6 +102,20 @@ class PreguntasController extends Controller
         return view('mathbus', compact('preguntas'));
     }
 
+    /**
+     * Carga y muestra el juego MathMatch con sus preguntas
+     * 
+     * Recupera el juego MathMatch de la base de datos junto con todas sus
+     * preguntas y opciones asociadas. Las preguntas se cargan en orden
+     * aleatorio para cada sesión de juego. Inyecta los datos en la vista
+     * usando Blade para evitar llamadas API.
+     * 
+     * @return \Illuminate\View\View Vista mathmatch con las preguntas en formato JSON
+     * 
+     * @see \App\Models\Juegos
+     * @see \App\Models\Preguntas
+     * @see \App\Models\Opciones
+     */
     public function mathmatch()
     {
         // Traemos el juego MathMatch con todas sus preguntas y opciones asociadas

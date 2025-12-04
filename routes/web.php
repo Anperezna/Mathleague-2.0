@@ -10,7 +10,7 @@ use App\Http\Controllers\JuegosSesionController;
 use App\Http\Controllers\JuegosController;
 
 Route::get('/', function () {
-    return view('index');
+    return redirect()->route('register');
 })->name('index');
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

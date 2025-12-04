@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<div class="w-full h-screen flex justify-center items-center bg-gradient-to-b from-green-100 to-green-300">
+<div class="w-full min-h-screen flex justify-center items-center bg-gradient-to-b from-green-100 to-green-300">
 
     <div class="w-[1200px] h-[700px] relative">
 
