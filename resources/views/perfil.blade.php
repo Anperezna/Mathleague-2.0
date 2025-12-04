@@ -19,7 +19,6 @@
                 ['title' => 'El Autobús', 'image' => 'img/juegos/mathbus.png'],
                 ['title' => 'Paco y la Cortacésped', 'image' => 'img/juegos/manolo.png'],
                 ['title' => 'Partido de Fútbol', 'image' => 'img/juegos/mathmatch.png'],
-                ['title' => 'Entrevista Postpartido', 'image' => 'img/juegos/mathentrevista.png'],
             ];
         @endphp
 
@@ -33,4 +32,6 @@
         </div>
     </div>
 </div>
+
+<script src="{{ asset('js/perfil.js') }}"></script>
 @endsection
