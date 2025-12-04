@@ -73,16 +73,16 @@
                             <img id="goalkeeper" src="{{ asset('img/portero_mathmatch.png') }}" alt="Portero" class="absolute w-32 h-auto transition-all duration-300" style="bottom: 25%; left: 50%; transform: translateX(-50%); width: 550px;">
                             
                             <!-- Botones de tiro (4 esquinas) -->
-                            <button onclick="shootPenalty('top-left')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="top: 20%; left: 15%;">
+                            <button onclick="tirarPenalti('top-left')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="top: 20%; left: 15%;">
                                 ¡CHUTA!
                             </button>
-                            <button onclick="shootPenalty('top-right')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="top: 20%; right: 15%;">
+                            <button onclick="tirarPenalti('top-right')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="top: 20%; right: 15%;">
                                 ¡CHUTA!
                             </button>
-                            <button onclick="shootPenalty('bottom-left')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="bottom: 20%; left: 15%;">
+                            <button onclick="tirarPenalti('bottom-left')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="bottom: 20%; left: 15%;">
                                 ¡CHUTA!
                             </button>
-                            <button onclick="shootPenalty('bottom-right')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="bottom: 20%; right: 15%;">
+                            <button onclick="tirarPenalti('bottom-right')" class="absolute bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:scale-110" style="bottom: 20%; right: 15%;">
                                 ¡CHUTA!
                             </button>
                         </div>
@@ -115,7 +115,7 @@
                 </p>
                 <p class="text-lg text-gray-600 mb-6">Tiempo jugado: <span id="final-time" class="font-bold">0</span> segundos</p>
                 
-                <button onclick="restartGame()" class="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+                <button onclick="reiniciarJuego()" class="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
                     Volver a jugar
                 </button>
                 <button onclick="resetToMenu()" class="ml-4 px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
@@ -135,7 +135,7 @@
 function startGame() {
     document.getElementById('menuScreen').classList.add('hidden');
     document.getElementById('gameScreen').classList.remove('hidden');
-    initGame();
+    inicializarJuego();
 }
 
 function resetToMenu() {
