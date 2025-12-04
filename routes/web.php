@@ -9,6 +9,7 @@ use App\Http\Controllers\PreguntasController;
 use App\Http\Controllers\CortacespedController;
 use App\Http\Controllers\JuegosSesionController;
 use App\Http\Controllers\JuegosController;
+use App\Http\Controllers\RankingController;
 
 Route::get('/', function () {
     return redirect()->route('register');
@@ -43,6 +44,4 @@ Route::get('/about', function () {
     return view('about');
 })->name('about');
 
-Route::get('/ranking', function () {
-    return view('ranking');
-})->name('ranking');
+Route::get('/ranking', [RankingController::class, 'index'])->name('ranking');
