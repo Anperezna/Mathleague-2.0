@@ -22,7 +22,6 @@ class CortacespedGame {
         this.score = 0; // Puntuación
         this.gameRunning = false; // ¿El juego está corriendo?
         this.gameStarted = false; // ¿El juego ya empezó?
-        this.isPaused = false; // ¿El juego está en pausa?
         this.ayuda = 0; // Contador de ayudas usadas
         this.totalGrass = 0; // Total de células de césped
         this.grassCut = 0; // Células de césped cortadas
@@ -57,9 +56,6 @@ class CortacespedGame {
             this.keys[e.code] = true;
             if (e.code === 'Space' && !this.gameStarted) {
                 this.startGame();
-            }
-            if (e.code === 'Escape' && this.gameStarted && this.gameRunning) {
-                this.togglePause();
             }
         });
         window.addEventListener('keyup', (e) => this.keys[e.code] = false);
@@ -131,34 +127,6 @@ class CortacespedGame {
         this.gameStarted = true;
         this.lastTimeUpdate = Date.now();
         this.gameLoop();
-    }
-
-    // ===== PAUSAR/REANUDAR JUEGO =====
-    togglePause() {
-        this.isPaused = !this.isPaused;
-        if (!this.isPaused) {
-            // Reanudar: actualizar el tiempo para evitar saltos
-            this.lastTimeUpdate = Date.now();
-            this.gameLoop();
-        }
-    }
-
-    // ===== PANTALLA DE PAUSA =====
-    showPauseScreen() {
-        // Oscurecer la pantalla
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Título de pausa
-        this.ctx.fillStyle = '#FFD700';
-        this.ctx.font = 'bold 80px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('PAUSA', this.canvas.width / 2, this.canvas.height / 2 - 50);
-
-        // Instrucción
-        this.ctx.fillStyle = 'white';
-        this.ctx.font = '32px Arial';
-        this.ctx.fillText('Presiona ESC para continuar', this.canvas.width / 2, this.canvas.height / 2 + 50);
     }
 
     // ===== PANTALLA DE INICIO =====
@@ -246,7 +214,7 @@ class CortacespedGame {
 
     // ===== ACTUALIZAR JUEGO =====
     update() {
-        if (!this.gameRunning || this.isPaused) return;
+        if (!this.gameRunning) return;
 
         const now = Date.now();
         const deltaTime = (now - this.lastTimeUpdate) / 1000;
@@ -549,11 +517,6 @@ class CortacespedGame {
     gameLoop() {
         this.update();
         this.draw();
-
-        // Dibujar pantalla de pausa si está pausado
-        if (this.isPaused) {
-            this.showPauseScreen();
-        }
 
         if (this.gameRunning) {
             requestAnimationFrame(() => this.gameLoop());

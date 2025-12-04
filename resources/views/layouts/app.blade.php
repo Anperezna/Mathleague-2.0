@@ -28,6 +28,7 @@
 </head>
 
 <body class="overflow-x-hidden">
+    <script src="{{ asset('js/sesion-manager.js') }}"></script>
     @yield('content')
     @stack('scripts')
 </body>
