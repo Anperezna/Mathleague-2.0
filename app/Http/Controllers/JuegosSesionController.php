@@ -7,6 +7,17 @@ use App\Models\Sesiones;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 
+/**
+ * Controlador para la gestión de sesiones de juego
+ * 
+ * Maneja el almacenamiento y actualización de las sesiones de juego,
+ * incluyendo puntuaciones, tiempos, errores y estado de completitud.
+ * Implementa el sistema de desbloqueo progresivo marcando juegos como completados.
+ * 
+ * @package App\Http\Controllers
+ * @author Math League Team
+ * @version 1.0.0
+ */
 class JuegosSesionController extends Controller
 {
     /**
@@ -66,7 +77,31 @@ class JuegosSesionController extends Controller
     }
 
     /**
-     * Guardar la sesión del juego
+     * Guarda o actualiza la sesión de juego del usuario autenticado
+     * 
+     * Este método procesa los datos enviados desde los juegos JavaScript y los
+     * almacena en la base de datos. Implementa la lógica de completitud específica
+     * para cada juego:
+     * - MathBus (id 1): Completado con 10+ puntos
+     * - Cortacesped (id 2): Lógica pendiente
+     * - MathMatch (id 3): Completado con 5+ números factorizados
+     * - Entrevista (id 4): Lógica pendiente
+     * 
+     * Usa updateOrCreate para evitar duplicados, actualizando el registro existente
+     * si el usuario ya jugó ese juego o creando uno nuevo en caso contrario.
+     * 
+     * @param \Illuminate\Http\Request $request Solicitud con datos del juego:
+     *                                          - id_juego: ID del juego (1-4)
+     *                                          - tiempo: Duración de la partida en segundos
+     *                                          - puntos: Puntuación obtenida
+     *                                          - fallos: Número de errores cometidos
+     *                                          - intentos: Número total de intentos (opcional)
+     *                                          - numerosCompletados: Números factorizados (MathMatch)
+     * 
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con success: true
+     * 
+     * @see \App\Models\Sesiones
+     * @see \App\Models\Juegos_Sesion
      */
     public function guardarSesion(Request $request)
     {
@@ -104,16 +139,21 @@ class JuegosSesionController extends Controller
             ]
         );
 
-        Juegos_Sesion::create([
-            'numero_nivel' => $numeroNivel,
-            'duracion_nivel' => $request->tiempo,
-            'completado' => $completado,
-            'errores_nivel' => $request->fallos,
-            'intentos_nivel' => $request->intentos ?? ($request->puntos + $request->fallos),
-            'puntuacion' => $request->puntos,
-            'id_sesionCompleta' => $sesion->id_sesion,
-            'id_juego' => $idJuego,
-        ]);
+        // Usar updateOrCreate para actualizar si existe o crear si no existe
+        Juegos_Sesion::updateOrCreate(
+            [
+                'id_sesionCompleta' => $sesion->id_sesion,
+                'id_juego' => $idJuego,
+            ],
+            [
+                'numero_nivel' => $numeroNivel,
+                'duracion_nivel' => $request->tiempo,
+                'completado' => $completado,
+                'errores_nivel' => $request->fallos,
+                'intentos_nivel' => $request->intentos ?? ($request->puntos + $request->fallos),
+                'puntuacion' => $request->puntos,
+            ]
+        );
 
         return response()->json(['success' => true]);
     }

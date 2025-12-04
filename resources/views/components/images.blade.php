@@ -3,8 +3,8 @@
 
 
 
-<div class="flex flex-col gap-10 w-full py-10">
-    @foreach (collect($juegos)->chunk(2) as $chunk)
+<div class="flex flex-col gap-10 w-full py-10 mt-20">
+    @foreach (collect($juegos)->chunk(3) as $chunk)
         <div class="flex flex-wrap gap-10 justify-center items-center w-full">
             @foreach ($chunk as $juego)
                 

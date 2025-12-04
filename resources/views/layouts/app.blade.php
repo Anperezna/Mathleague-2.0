@@ -27,7 +27,7 @@
     @stack('styles')
 </head>
 
-<body class="min-h-screen overflow-x-hidden">
+<body class="overflow-x-hidden">
     @yield('content')
     @stack('scripts')
 </body>
