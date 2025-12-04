@@ -13,12 +13,19 @@ class CortacespedGame {
         document.body.appendChild(this.canvas);
 
         // ===== VARIABLES DEL JUEGO =====
-        this.gameTime = 60; // Tiempo total: 2 minutos
-        this.fuelTime = 14; // Gasolina inicial: 14 segundos
-        this.fuelCount = 2; // Bidones de gasolina
+        this.gameTime = 0; // Tiempo transcurrido en segundos
+        this.maxTime = 60; // Tiempo máximo: 1 minuto
+        this.aciertos = 0; // Aciertos (máximo 6)
+        this.errores = 0; // Errores (máximo 3)
+        this.maxAciertos = 6; // Aciertos necesarios para ganar
+        this.maxErrores = 3; // Errores máximos permitidos
         this.score = 0; // Puntuación
         this.gameRunning = false; // ¿El juego está corriendo?
         this.gameStarted = false; // ¿El juego ya empezó?
+        this.isPaused = false; // ¿El juego está en pausa?
+        this.ayuda = 0; // Contador de ayudas usadas
+        this.totalGrass = 0; // Total de células de césped
+        this.grassCut = 0; // Células de césped cortadas
 
         // ===== PERSONAJE (PACO) =====
         this.paco = {
@@ -51,6 +58,9 @@ class CortacespedGame {
             if (e.code === 'Space' && !this.gameStarted) {
                 this.startGame();
             }
+            if (e.code === 'Escape' && this.gameStarted && this.gameRunning) {
+                this.togglePause();
+            }
         });
         window.addEventListener('keyup', (e) => this.keys[e.code] = false);
 
@@ -72,6 +82,7 @@ class CortacespedGame {
             this.grassGrid[y] = [];
             for (let x = 0; x < cols; x++) {
                 this.grassGrid[y][x] = 1; // Todo empieza con césped largo
+                this.totalGrass++; // Contar total de celdas
             }
         }
     }
@@ -90,6 +101,7 @@ class CortacespedGame {
                 // Si existe la celda y tiene césped largo
                 if (this.grassGrid[y] && this.grassGrid[y][x] === 1) {
                     this.grassGrid[y][x] = 0; // Marcar como cortado
+                    this.grassCut++; // Incrementar contador
                     this.score += 1; // Sumar punto
                 }
             }
@@ -98,7 +110,7 @@ class CortacespedGame {
 
     // ===== CARGAR IMÁGENES =====
     loadImages() {
-        const imageNames = ['Campo_MathMatch', 'pacoderecho', 'bidongasolina'];
+        const imageNames = ['Campo_MathMatch', 'pacoderecho', 'bidongasolina', 'fondo'];
         let loaded = 0;
 
         imageNames.forEach(name => {
@@ -121,10 +133,43 @@ class CortacespedGame {
         this.gameLoop();
     }
 
+    // ===== PAUSAR/REANUDAR JUEGO =====
+    togglePause() {
+        this.isPaused = !this.isPaused;
+        if (!this.isPaused) {
+            // Reanudar: actualizar el tiempo para evitar saltos
+            this.lastTimeUpdate = Date.now();
+            this.gameLoop();
+        }
+    }
+
+    // ===== PANTALLA DE PAUSA =====
+    showPauseScreen() {
+        // Oscurecer la pantalla
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Título de pausa
+        this.ctx.fillStyle = '#FFD700';
+        this.ctx.font = 'bold 80px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('PAUSA', this.canvas.width / 2, this.canvas.height / 2 - 50);
+
+        // Instrucción
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '32px Arial';
+        this.ctx.fillText('Presiona ESC para continuar', this.canvas.width / 2, this.canvas.height / 2 + 50);
+    }
+
     // ===== PANTALLA DE INICIO =====
     showStartScreen() {
+        // Dibujar imagen de fondo
+        if (this.images['fondo'] && this.images['fondo'].complete) {
+            this.ctx.drawImage(this.images['fondo'], 0, 0, this.canvas.width, this.canvas.height);
+        }
+        
         // Fondo negro semitransparente
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Título
@@ -140,11 +185,13 @@ class CortacespedGame {
         this.ctx.fillText('• Mueve a Paco con las FLECHAS', this.canvas.width / 2, 340);
         this.ctx.fillText('• Corta el césped pasando por encima', this.canvas.width / 2, 380);
         this.ctx.fillText('• Recoge los bidones con la respuesta correcta', this.canvas.width / 2, 420);
+        this.ctx.fillText('• Consigue 6 aciertos o corta el 80% del campo', this.canvas.width / 2, 460);
+        this.ctx.fillText('• Tienes 1 minuto y 3 errores máximos', this.canvas.width / 2, 500);
 
         // Botón de inicio
         this.ctx.fillStyle = '#00FF00';
         this.ctx.font = 'bold 32px Arial';
-        this.ctx.fillText('Presiona ESPACIO para empezar', this.canvas.width / 2, 500);
+        this.ctx.fillText('Presiona ESPACIO para empezar', this.canvas.width / 2, 570);
 
         // Repetir animación si no ha empezado
         if (!this.gameStarted) {
@@ -199,24 +246,27 @@ class CortacespedGame {
 
     // ===== ACTUALIZAR JUEGO =====
     update() {
-        if (!this.gameRunning) return;
+        if (!this.gameRunning || this.isPaused) return;
 
         const now = Date.now();
         const deltaTime = (now - this.lastTimeUpdate) / 1000;
         this.lastTimeUpdate = now;
 
-        // Actualizar tiempo de juego
-        this.gameTime -= deltaTime;
-        this.fuelTime -= deltaTime;
+        // Actualizar tiempo de juego (contar hacia arriba)
+        this.gameTime += deltaTime;
 
-        // Si se acaba el tiempo de un bidón, restar bidón
-        if (this.fuelTime <= 0) {
-            this.fuelCount--;
-            this.fuelTime = 7; // Resetear a 7 segundos
-        }
+        // Calcular porcentaje de césped cortado
+        const grassPercentage = (this.grassCut / this.totalGrass) * 100;
 
-        // Fin del juego
-        if (this.gameTime <= 0 || this.fuelCount <= 0) {
+        // Fin del juego si:
+        // - Alcanza 6 aciertos
+        // - Comete 3 errores
+        // - Se acaba el tiempo (60 segundos)
+        // - Corta el 80% del campo
+        if (this.aciertos >= this.maxAciertos || 
+            this.errores >= this.maxErrores || 
+            this.gameTime >= this.maxTime ||
+            grassPercentage >= 80) {
             this.gameRunning = false;
             this.showGameOver();
             return;
@@ -249,23 +299,30 @@ class CortacespedGame {
         this.fallingFuel = this.fallingFuel.filter(fuel => {
             fuel.y += fuel.speed; // Mover hacia abajo
 
+            // Si el bidón sale de la pantalla por abajo, simplemente eliminarlo
+            if (fuel.y > this.canvas.height) {
+                return false; // Eliminar bidón
+            }
+
             // Detectar colisión con Paco
             if (this.checkCollision(this.paco, fuel)) {
                 if (fuel.isCorrect) {
                     // Respuesta correcta
-                    this.fuelCount = Math.min(5, this.fuelCount + 1);
-                    this.fuelTime = 7; // Resetear tiempo a 7 segundos
+                    this.aciertos++;
                     this.score += 10;
                     this.currentOperation = this.generateOperation();
+                    this.guardarCookies(); // Guardar progreso
                 } else {
-                    // Respuesta incorrecta - solo resta puntos, no suma tiempo
+                    // Respuesta incorrecta
+                    this.errores++;
                     this.score = Math.max(0, this.score - 5);
+                    this.guardarCookies(); // Guardar progreso
                 }
                 return false; // Eliminar bidón
             }
 
-            // Mantener bidón si no salió de la pantalla
-            return fuel.y < this.canvas.height;
+            // Mantener bidón si sigue en pantalla
+            return true;
         });
     }
 
@@ -331,16 +388,18 @@ class CortacespedGame {
         this.ctx.textAlign = 'center';
         this.ctx.fillText(this.currentOperation.text, this.canvas.width / 2, 45);
 
-        // Bidones de gasolina arriba derecha
+        // Bidones de aciertos arriba derecha
         const fuelSize = 50;
-        const startX = this.canvas.width - 280;
-        for (let i = 0; i < 5; i++) {
-            if (i < this.fuelCount) {
-                // Bidón lleno
-                const blink = this.fuelCount === 1 && Math.floor(Date.now() / 500) % 2 === 0;
-                if (!blink) {
-                    this.ctx.drawImage(this.images['bidongasolina'], startX + i * 55, 15, fuelSize, fuelSize);
-                }
+        const startX = this.canvas.width - 340;
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = 'bold 20px Arial';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText('Aciertos:', startX - 100, 45);
+        
+        for (let i = 0; i < this.maxAciertos; i++) {
+            if (i < this.aciertos) {
+                // Bidón lleno (acierto conseguido)
+                this.ctx.drawImage(this.images['bidongasolina'], startX + i * 55, 15, fuelSize, fuelSize);
             } else {
                 // Bidón vacío (gris)
                 this.ctx.globalAlpha = 0.3;
@@ -349,39 +408,152 @@ class CortacespedGame {
             }
         }
 
-        // Información arriba izquierda
+        // Errores a la izquierda
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(10, 10, 200, 80);
+        this.ctx.fillRect(10, 10, 220, 150);
         this.ctx.fillStyle = 'white';
         this.ctx.font = '20px Arial';
         this.ctx.textAlign = 'left';
-        this.ctx.fillText(`Tiempo: ${Math.ceil(this.gameTime)}s`, 20, 35);
+        
+        const timeLeft = Math.max(0, this.maxTime - this.gameTime);
+        const grassPercentage = ((this.grassCut / this.totalGrass) * 100).toFixed(1);
+        
+        this.ctx.fillText(`Tiempo: ${Math.floor(timeLeft)}s`, 20, 35);
         this.ctx.fillText(`Puntos: ${this.score}`, 20, 65);
+        this.ctx.fillText(`Césped: ${grassPercentage}%`, 20, 95);
+        
+        // Mostrar errores con X rojas
+        this.ctx.fillStyle = 'red';
+        this.ctx.font = 'bold 24px Arial';
+        this.ctx.fillText('Errores:', 20, 125);
+        for (let i = 0; i < this.maxErrores; i++) {
+            if (i < this.errores) {
+                this.ctx.fillStyle = 'red';
+                this.ctx.fillText('X', 130 + i * 25, 125);
+            } else {
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                this.ctx.fillText('O', 130 + i * 25, 125);
+            }
+        }
     }
 
     // ===== PANTALLA DE GAME OVER =====
     showGameOver() {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        // Guardar datos finales
+        this.guardarCookies();
+        this.enviarDatosAlServidor();
 
-        this.ctx.fillStyle = '#FFD700';
-        this.ctx.font = 'bold 60px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('¡JUEGO TERMINADO!', this.canvas.width / 2, 200);
+        const grassPercentage = ((this.grassCut / this.totalGrass) * 100).toFixed(1);
+        const ganaste = this.aciertos >= this.maxAciertos || grassPercentage >= 80;
+        
+        // Actualizar el modal con los datos
+        const modal = document.getElementById('gameOverModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalTime = document.getElementById('modalTime');
+        const modalAciertos = document.getElementById('modalAciertos');
+        const modalErrores = document.getElementById('modalErrores');
+        const modalCesped = document.getElementById('modalCesped');
+        const reasonText = document.getElementById('reasonText');
 
-        this.ctx.fillStyle = 'white';
-        this.ctx.font = '32px Arial';
-        this.ctx.fillText(`Puntuación Final: ${this.score}`, this.canvas.width / 2, 280);
+        // Actualizar título
+        modalTitle.textContent = ganaste ? '¡GANASTE!' : '¡PERDISTE!';
+        modalTitle.style.color = ganaste ? '#FFD700' : '#f87171';
 
-        this.ctx.fillStyle = '#00FF00';
-        this.ctx.font = 'bold 28px Arial';
-        this.ctx.fillText('Presiona F5 para jugar de nuevo', this.canvas.width / 2, 350);
+        // Actualizar estadísticas
+        modalTime.textContent = `${Math.floor(this.gameTime)}s / ${this.maxTime}s`;
+        modalAciertos.textContent = `${this.aciertos}/${this.maxAciertos}`;
+        modalErrores.textContent = `${this.errores}/${this.maxErrores}`;
+        modalCesped.textContent = `${grassPercentage}%`;
+
+        // Actualizar razón de victoria/derrota
+        if (ganaste) {
+            if (this.aciertos >= this.maxAciertos) {
+                reasonText.textContent = '¡Completaste los 6 aciertos!';
+            } else if (grassPercentage >= 80) {
+                reasonText.textContent = '¡Cortaste el 80% del campo!';
+            }
+            reasonText.style.color = '#FFD700';
+        } else {
+            if (this.errores >= this.maxErrores) {
+                reasonText.textContent = 'Cometiste 3 errores';
+            } else if (this.gameTime >= this.maxTime) {
+                reasonText.textContent = 'Se acabó el tiempo';
+            }
+            reasonText.style.color = '#f87171';
+        }
+
+        // Mostrar el modal
+        modal.style.display = 'flex';
+    }
+
+    // ===== GUARDAR COOKIES =====
+    guardarCookies() {
+        const estado = {
+            tiempo: Math.floor(this.gameTime),
+            puntos: this.score,
+            aciertos: this.aciertos,
+            errores: this.errores,
+            ayuda: this.ayuda
+        };
+        const fecha = new Date();
+        fecha.setTime(fecha.getTime() + 1 * 24 * 60 * 60 * 1000); // 1 día
+        document.cookie = "cortacesped=" + JSON.stringify(estado) + ";expires=" + fecha.toUTCString() + ";path=/";
+    }
+
+    // ===== LEER COOKIE =====
+    leerCookie() {
+        const nombreCookie = "cortacesped=";
+        const contenido = document.cookie.split(';');
+        for (let i = 0; i < contenido.length; i++) {
+            let cookieCompleta = contenido[i].trim();
+            if (cookieCompleta.indexOf(nombreCookie) === 0) {
+                const estadoStr = cookieCompleta.substring(nombreCookie.length);
+                const valorCookie = JSON.parse(estadoStr);
+                return valorCookie;
+            }
+        }
+        return null;
+    }
+
+    // ===== ENVIAR DATOS AL SERVIDOR =====
+    enviarDatosAlServidor() {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        
+        const datosJuego = {
+            tiempo: Math.floor(this.gameTime),
+            puntos: this.score,
+            aciertos: this.aciertos,
+            errores: this.errores,
+            ayuda: this.ayuda,
+            id_juego: 2 // ID del juego Cortacesped (según tu base de datos)
+        };
+
+        fetch('/guardar-sesion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken || ''
+            },
+            body: JSON.stringify(datosJuego)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Sesión guardada:', data);
+        })
+        .catch(error => {
+            console.error('Error al guardar la sesión:', error);
+        });
     }
 
     // ===== BUCLE PRINCIPAL =====
     gameLoop() {
         this.update();
         this.draw();
+
+        // Dibujar pantalla de pausa si está pausado
+        if (this.isPaused) {
+            this.showPauseScreen();
+        }
 
         if (this.gameRunning) {
             requestAnimationFrame(() => this.gameLoop());
