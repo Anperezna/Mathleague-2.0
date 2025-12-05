@@ -6,11 +6,26 @@
 class CortacespedGame {
     constructor() {
         // ===== CONFIGURACIÓN DEL CANVAS =====
-        this.canvas = document.createElement('canvas');
+        this.canvas = document.getElementById('gameCanvas');
+        if (!this.canvas) {
+            this.canvas = document.createElement('canvas');
+            const container = document.getElementById('canvasContainer');
+            if (container) {
+                container.appendChild(this.canvas);
+            } else {
+                document.body.appendChild(this.canvas);
+            }
+        }
         this.ctx = this.canvas.getContext('2d');
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        document.body.appendChild(this.canvas);
+        // Ajustar el canvas al tamaño del contenedor
+        const container = document.getElementById('canvasContainer');
+        if (container) {
+            this.canvas.width = container.clientWidth;
+            this.canvas.height = container.clientHeight;
+        } else {
+            this.canvas.width = 1200;
+            this.canvas.height = 700;
+        }
 
         // ===== VARIABLES DEL JUEGO =====
         this.gameTime = 0; // Tiempo transcurrido en segundos
@@ -55,9 +70,6 @@ class CortacespedGame {
         this.keys = {};
         window.addEventListener('keydown', (e) => {
             this.keys[e.code] = true;
-            if (e.code === 'Space' && !this.gameStarted) {
-                this.startGame();
-            }
             if (e.code === 'Escape' && this.gameStarted && this.gameRunning) {
                 this.togglePause();
             }
@@ -68,8 +80,8 @@ class CortacespedGame {
         this.lastFuelSpawn = 0;
         this.lastTimeUpdate = Date.now();
 
-        // Mostrar pantalla de inicio
-        this.showStartScreen();
+        // No mostrar pantalla de inicio automáticamente
+        // El menú de la página se encargará de iniciar el juego
     }
 
     // ===== INICIALIZAR CÉSPED =====
@@ -447,23 +459,23 @@ class CortacespedGame {
         const ganaste = this.aciertos >= this.maxAciertos || grassPercentage >= 80;
         
         // Actualizar el modal con los datos
-        const modal = document.getElementById('gameOverModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalTime = document.getElementById('modalTime');
-        const modalAciertos = document.getElementById('modalAciertos');
-        const modalErrores = document.getElementById('modalErrores');
-        const modalCesped = document.getElementById('modalCesped');
-        const reasonText = document.getElementById('reasonText');
+        const modal = document.getElementById('game-over-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const finalTiempo = document.getElementById('final-tiempo');
+        const finalAciertos = document.getElementById('final-aciertos');
+        const finalErrores = document.getElementById('final-errores');
+        const finalCesped = document.getElementById('final-cesped');
+        const reasonText = document.getElementById('game-over-reason');
 
         // Actualizar título
-        modalTitle.textContent = ganaste ? '¡GANASTE!' : '¡PERDISTE!';
-        modalTitle.style.color = ganaste ? '#FFD700' : '#f87171';
+        modalTitle.textContent = ganaste ? '¡Ganaste!' : '¡Perdiste!';
+        modalTitle.className = ganaste ? 'text-3xl font-bold mb-4 text-green-600' : 'text-3xl font-bold mb-4 text-red-600';
 
         // Actualizar estadísticas
-        modalTime.textContent = `${Math.floor(this.gameTime)}s / ${this.maxTime}s`;
-        modalAciertos.textContent = `${this.aciertos}/${this.maxAciertos}`;
-        modalErrores.textContent = `${this.errores}/${this.maxErrores}`;
-        modalCesped.textContent = `${grassPercentage}%`;
+        finalTiempo.textContent = `${Math.floor(this.gameTime)}s / ${this.maxTime}s`;
+        finalAciertos.textContent = `${this.aciertos}/${this.maxAciertos}`;
+        finalErrores.textContent = `${this.errores}/${this.maxErrores}`;
+        finalCesped.textContent = `${grassPercentage}%`;
 
         // Actualizar razón de victoria/derrota
         if (ganaste) {
@@ -472,18 +484,19 @@ class CortacespedGame {
             } else if (grassPercentage >= 80) {
                 reasonText.textContent = '¡Cortaste el 80% del campo!';
             }
-            reasonText.style.color = '#FFD700';
+            reasonText.className = 'text-xl text-green-600 mb-4 font-semibold';
         } else {
             if (this.errores >= this.maxErrores) {
                 reasonText.textContent = 'Cometiste 3 errores';
             } else if (this.gameTime >= this.maxTime) {
                 reasonText.textContent = 'Se acabó el tiempo';
             }
-            reasonText.style.color = '#f87171';
+            reasonText.className = 'text-xl text-red-600 mb-4 font-semibold';
         }
 
         // Mostrar el modal
-        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
     }
 
     // ===== GUARDAR COOKIES =====
@@ -561,7 +574,5 @@ class CortacespedGame {
     }
 }
 
-// ===== INICIAR JUEGO AL CARGAR LA PÁGINA =====
-window.addEventListener('load', () => {
-    new CortacespedGame();
-});
+// ===== INSTANCIA GLOBAL DEL JUEGO =====
+let gameInstance = null;
