@@ -60,6 +60,8 @@ class JuegosController extends Controller
                 foreach ($sesionesJuego as $sj) {
                     $juegosCompletados[] = $sj->id_juego;
                 }
+                
+                \Log::info('Juegos completados para usuario ' . $userId . ': ' . json_encode($juegosCompletados));
             }
         }
 

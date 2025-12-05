@@ -60,6 +60,6 @@ class RegisterController extends Controller
         $usuario->fecha_registro = Carbon::now()->toDateTimeString();
         $usuario->save();
 
-        return redirect()->route('juegos')->with('success', 'Registro exitoso. Ahora puedes iniciar sesión.');
+        return redirect()->route('login')->with('success', 'Registro exitoso. Ahora puedes iniciar sesión.');
     }
 }

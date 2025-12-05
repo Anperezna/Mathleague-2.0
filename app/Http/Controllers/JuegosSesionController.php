@@ -115,7 +115,9 @@ class JuegosSesionController extends Controller
             $completado = $request->puntos >= 10 ? 1 : 0;
         } elseif ($idJuego == 2) { // Cortacesped
             $numeroNivel = 2;
-            // Logica de juego completado de Cortacesped
+            // Completado cuando se obtienen 6 aciertos
+            $completado = ($request->aciertos ?? 0) >= 6 ? 1 : 0;
+            \Log::info('Cortacesped - Aciertos: ' . ($request->aciertos ?? 0) . ', Completado: ' . $completado);
         } elseif ($idJuego == 3) { // Mathmatch
             $numeroNivel = 3;
             // Completado cuando se descomponen correctamente 5 números
@@ -149,9 +151,9 @@ class JuegosSesionController extends Controller
                 'numero_nivel' => $numeroNivel,
                 'duracion_nivel' => $request->tiempo,
                 'completado' => $completado,
-                'errores_nivel' => $request->fallos,
-                'intentos_nivel' => $request->intentos ?? ($request->puntos + $request->fallos),
-                'puntuacion' => $request->puntos,
+                'errores_nivel' => $request->errores ?? $request->fallos ?? 0,
+                'intentos_nivel' => $request->intentos ?? (($request->aciertos ?? 0) + ($request->errores ?? $request->fallos ?? 0)),
+                'puntuacion' => $request->puntos ?? 0,
             ]
         );
 
