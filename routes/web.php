@@ -24,6 +24,7 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 
 Route::get('/mathbus', [PreguntasController::class, 'mathbus'])->name('mathbus');
 Route::post('/guardar-sesion', [JuegosSesionController::class, 'guardarSesion'])->name('guardar.sesion');
+Route::post('/guardar-sesion-completa', [JuegosSesionController::class, 'guardarSesionCompleta'])->name('guardar.sesion.completa');
 
 Route::get('/mathmatch', [PreguntasController::class, 'mathmatch'])->name('mathmatch');
 

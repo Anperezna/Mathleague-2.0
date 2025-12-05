@@ -14,8 +14,8 @@ function inicializarJuego(reiniciarTemporizador = true) {
     pasosUsuario = [];
     defensaActual = 1;
 
-    const solucionCorrecta = preguntaActual.opciones?.[0]?.esCorrecta || preguntaActual.solucion_correcta;
-    totalDefensas = String(solucionCorrecta).length;
+    // Calcular el número total de factores primos (defensas)
+    totalDefensas = contarFactoresPrimos(numeroInicial);
     
     if (reiniciarTemporizador) {
         puntuacion = fallos = numerosCompletados = tiempo = 0;
@@ -78,6 +78,19 @@ function obtenerDivisorMasPequeno(num) {
     return num;
 }
 
+// Contar factores primos (número de pasos necesarios)
+function contarFactoresPrimos(num) {
+    let count = 0;
+    let n = num;
+    for (let i = 2; i <= n && n > 1; i++) {
+        while (n % i === 0) {
+            count++;
+            n /= i;
+        }
+    }
+    return count;
+}
+
 // Generar opciones aleatorias
 function generarOpcionesAleatorias(num, correcta) {
     const opciones = new Set([correcta]);
@@ -132,7 +145,8 @@ function seleccionarOpcion(numero) {
     actualizarPantalla();
     mostrarAnimacionExito();
     
-    if (pasosUsuario.length >= 5 || defensaActual > totalDefensas) {
+    // Verificar si ya completó todos los pasos necesarios
+    if (pasosUsuario.length >= totalDefensas) {
         setTimeout(() => {
             cambiarFondo('porteria');
             setTimeout(mostrarPantallaPenalti, 300);
@@ -244,10 +258,31 @@ function mostrarModalGol() {
     document.getElementById('goal-modal').classList.remove('hidden');
     enviarDatosAlServidor();
     
-    setTimeout(() => {
-        document.getElementById('goal-modal').classList.add('hidden');
-        siguienteRonda();
-    }, 2000);
+    // Verificar si completó 4 números
+    if (numerosCompletados >= 4) {
+        setTimeout(() => {
+            document.getElementById('goal-modal').classList.add('hidden');
+            mostrarModalVictoria();
+        }, 2000);
+    } else {
+        setTimeout(() => {
+            document.getElementById('goal-modal').classList.add('hidden');
+            siguienteRonda();
+        }, 2000);
+    }
+}
+
+function mostrarModalVictoria() {
+    clearInterval(intervaloTemporizador);
+    enviarDatosAlServidor();
+    
+    document.getElementById('final-score').textContent = puntuacion;
+    document.getElementById('final-time').textContent = tiempo;
+    document.getElementById('game-over-reason').textContent = '¡Completaste 4 números!';
+    
+    const modal = document.getElementById('game-over-modal');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
 }
 
 // Reiniciar juego
@@ -270,7 +305,7 @@ function enviarDatosAlServidor() {
     
     const datosJuego = {
         tiempo: tiempo,
-        puntos: score,
+        puntos: puntuacion,
         fallos: fallos,
         intentos: intentos,
         numerosCompletados: numerosCompletados,
@@ -306,6 +341,91 @@ function guardarCookies(nombre, valor, dias) {
     const fecha = new Date();
     fecha.setTime(fecha.getTime() + 1 * 24 * 60 * 60 * 1000); // 1 día
     document.cookie = "mathmatch=" + JSON.stringify(estado) + ";expires=" + fecha.toUTCString() + ";path=/";
+    
+    // Actualizar cookie de sesión completa
+    actualizarSesionCompleta();
+}
+
+function actualizarSesionCompleta() {
+    let sesionCompleta = leerCookieSesionCompleta() || {
+        tiempo_inicio: Date.now(),
+        tiempo_total: 0,
+        puntos_total: 0,
+        errores_total: 0,
+        ayuda_total: 0,
+        intentos_total: 0,
+        juegos_completados: 0,
+        mathbus_guardado: false,
+        cortacesped_guardado: false,
+        mathmatch_guardado: false
+    };
+
+    // Actualizar tiempo total desde el inicio de la sesión
+    sesionCompleta.tiempo_total = Math.floor((Date.now() - sesionCompleta.tiempo_inicio) / 1000);
+
+    // Solo acumular datos si este juego no ha sido guardado aún
+    if (!sesionCompleta.mathmatch_guardado) {
+        sesionCompleta.puntos_total += puntuacion;
+        sesionCompleta.errores_total += fallos;
+        sesionCompleta.intentos_total += intentos;
+        sesionCompleta.mathmatch_guardado = true;
+        
+        // Marcar MathMatch como completado si cumple la condición
+        if (numerosCompletados >= 4) {
+            sesionCompleta.juegos_completados = Math.max(sesionCompleta.juegos_completados, 3);
+            
+            // Verificar si completó los 3 juegos (mathbus, cortacesped y mathmatch)
+            if (sesionCompleta.mathbus_guardado && sesionCompleta.cortacesped_guardado && sesionCompleta.mathmatch_guardado) {
+                enviarSesionCompletaAlServidor(sesionCompleta);
+            }
+        }
+    }
+
+    const fecha = new Date();
+    fecha.setTime(fecha.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 días
+    document.cookie = "sesionCompleta=" + JSON.stringify(sesionCompleta) + ";expires=" + fecha.toUTCString() + ";path=/";
+}
+
+function leerCookieSesionCompleta() {
+    const nombreCookie = "sesionCompleta=";
+    const contenido = document.cookie.split(';');
+    for (let i = 0; i < contenido.length; i++) {
+        let cookieCompleta = contenido[i].trim();
+        if (cookieCompleta.indexOf(nombreCookie) === 0) {
+            const estadoStr = cookieCompleta.substring(nombreCookie.length);
+            return JSON.parse(estadoStr);
+        }
+    }
+    return null;
+}
+
+function enviarSesionCompletaAlServidor(sesionCompleta) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
+    const datosSesion = {
+        tiempo_total: sesionCompleta.tiempo_total,
+        puntos_total: sesionCompleta.puntos_total,
+        errores_total: sesionCompleta.errores_total,
+        ayuda_total: sesionCompleta.ayuda_total,
+        intentos_total: sesionCompleta.intentos_total,
+        juegos_completados: sesionCompleta.juegos_completados
+    };
+
+    fetch('/guardar-sesion-completa', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken || ''
+        },
+        body: JSON.stringify(datosSesion)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Sesión completa guardada:', data);
+    })
+    .catch(error => {
+        console.error('Error al guardar la sesión completa:', error);
+    });
 }
 
 // Leer cookie

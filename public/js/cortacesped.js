@@ -511,6 +511,57 @@ class CortacespedGame {
         const fecha = new Date();
         fecha.setTime(fecha.getTime() + 1 * 24 * 60 * 60 * 1000); // 1 día
         document.cookie = "cortacesped=" + JSON.stringify(estado) + ";expires=" + fecha.toUTCString() + ";path=/";
+        
+        // Actualizar cookie de sesión completa
+        this.actualizarSesionCompleta();
+    }
+
+    actualizarSesionCompleta() {
+        let sesionCompleta = this.leerCookieSesionCompleta() || {
+            tiempo_inicio: Date.now(),
+            tiempo_total: 0,
+            puntos_total: 0,
+            errores_total: 0,
+            ayuda_total: 0,
+            intentos_total: 0,
+            juegos_completados: 0,
+            mathbus_guardado: false,
+            cortacesped_guardado: false
+        };
+
+        // Actualizar tiempo total desde el inicio de la sesión
+        sesionCompleta.tiempo_total = Math.floor((Date.now() - sesionCompleta.tiempo_inicio) / 1000);
+
+        // Solo acumular datos si este juego no ha sido guardado aún
+        if (!sesionCompleta.cortacesped_guardado) {
+            sesionCompleta.puntos_total += this.score;
+            sesionCompleta.errores_total += this.errores;
+            sesionCompleta.ayuda_total += this.ayuda;
+            sesionCompleta.intentos_total += (this.aciertos + this.errores);
+            sesionCompleta.cortacesped_guardado = true;
+            
+            // Marcar Cortacésped como completado si cumple la condición
+            if (this.aciertos >= 6 && sesionCompleta.juegos_completados >= 1) {
+                sesionCompleta.juegos_completados = 2;
+            }
+        }
+
+        const fecha = new Date();
+        fecha.setTime(fecha.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 días
+        document.cookie = "sesionCompleta=" + JSON.stringify(sesionCompleta) + ";expires=" + fecha.toUTCString() + ";path=/";
+    }
+
+    leerCookieSesionCompleta() {
+        const nombreCookie = "sesionCompleta=";
+        const contenido = document.cookie.split(';');
+        for (let i = 0; i < contenido.length; i++) {
+            let cookieCompleta = contenido[i].trim();
+            if (cookieCompleta.indexOf(nombreCookie) === 0) {
+                const estadoStr = cookieCompleta.substring(nombreCookie.length);
+                return JSON.parse(estadoStr);
+            }
+        }
+        return null;
     }
 
     // ===== LEER COOKIE =====
@@ -538,6 +589,7 @@ class CortacespedGame {
             aciertos: this.aciertos,
             errores: this.errores,
             ayuda: this.ayuda,
+            intentos: this.aciertos + this.errores,
             id_juego: 2 // ID del juego Cortacesped (según tu base de datos)
         };
 
