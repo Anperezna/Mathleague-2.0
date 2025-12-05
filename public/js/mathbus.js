@@ -240,6 +240,7 @@ const game = {
             puntos: this.puntos,
             fallos: this.fallos,
             ayuda: this.ayuda,
+            intentos: this.puntos + this.fallos,
             id_juego: 1 // ID del juego Mathbus (según tu base de datos)
         };
 
@@ -270,7 +271,55 @@ const game = {
         const fecha = new Date();
         fecha.setTime(fecha.getTime() + 1 * 24 * 60 * 60 * 1000); // 1 día
         document.cookie = "mathbus=" + JSON.stringify(estado) + ";expires=" + fecha.toUTCString() + ";path=/";
+        
+        // Actualizar cookie de sesión completa
+        this.actualizarSesionCompleta();
+    },
 
+    actualizarSesionCompleta() {
+        let sesionCompleta = this.leerCookieSesionCompleta() || {
+            tiempo_inicio: Date.now(),
+            tiempo_total: 0,
+            puntos_total: 0,
+            errores_total: 0,
+            ayuda_total: 0,
+            intentos_total: 0,
+            juegos_completados: 0,
+            mathbus_guardado: false
+        };
+
+        // Solo actualizar si este juego no ha sido guardado aún
+        if (!sesionCompleta.mathbus_guardado) {
+            // Calcular tiempo transcurrido desde el inicio de la sesión
+            sesionCompleta.tiempo_total = Math.floor((Date.now() - sesionCompleta.tiempo_inicio) / 1000);
+            sesionCompleta.puntos_total = this.puntos;
+            sesionCompleta.errores_total = this.fallos;
+            sesionCompleta.ayuda_total = this.ayuda;
+            sesionCompleta.intentos_total = (this.puntos + this.fallos);
+            sesionCompleta.mathbus_guardado = true;
+            
+            // Marcar MathBus como completado si cumple la condición
+            if (this.puntos >= 10) {
+                sesionCompleta.juegos_completados = 1;
+            }
+        }
+
+        const fecha = new Date();
+        fecha.setTime(fecha.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 días
+        document.cookie = "sesionCompleta=" + JSON.stringify(sesionCompleta) + ";expires=" + fecha.toUTCString() + ";path=/";
+    },
+
+    leerCookieSesionCompleta() {
+        const nombreCookie = "sesionCompleta=";
+        const contenido = document.cookie.split(';');
+        for (let i = 0; i < contenido.length; i++) {
+            let cookieCompleta = contenido[i].trim();
+            if (cookieCompleta.indexOf(nombreCookie) === 0) {
+                const estadoStr = cookieCompleta.substring(nombreCookie.length);
+                return JSON.parse(estadoStr);
+            }
+        }
+        return null;
     },
 
     leerCookie() {

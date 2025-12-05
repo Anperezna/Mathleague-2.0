@@ -110,18 +110,16 @@ class JuegosSesionController extends Controller
         $completado = 0;
         
         // Configuración específica por juego
-        if ($idJuego == 1) { // Mathbus
+        if ($idJuego == 1) {
             $numeroNivel = 1;
             $completado = $request->puntos >= 10 ? 1 : 0;
-        } elseif ($idJuego == 2) { // Cortacesped
+        } elseif ($idJuego == 2) {
             $numeroNivel = 2;
-            // Completado cuando se obtienen 6 aciertos
             $completado = ($request->aciertos ?? 0) >= 6 ? 1 : 0;
-            \Log::info('Cortacesped - Aciertos: ' . ($request->aciertos ?? 0) . ', Completado: ' . $completado);
-        } elseif ($idJuego == 3) { // Mathmatch
+        } elseif ($idJuego == 3) {
             $numeroNivel = 3;
-            // Completado cuando se descomponen correctamente 5 números
-            $completado = ($request->numerosCompletados ?? 0) >= 5 ? 1 : 0;
+            // Completado cuando se descomponen correctamente 4 números
+            $completado = ($request->numerosCompletados ?? 0) >= 4 ? 1 : 0;
         } elseif ($idJuego == 4) { // Entrevista
             $numeroNivel = 4;
             // Logica de juego completado de Entrevista
@@ -158,5 +156,40 @@ class JuegosSesionController extends Controller
         );
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Guarda los datos completos de una sesión cuando se completan los 3 juegos
+     * 
+     * @param \Illuminate\Http\Request $request Solicitud con datos acumulados de los 3 juegos
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con success: true
+     */
+    public function guardarSesionCompleta(Request $request)
+    {
+        // Obtener o crear una sesión completa para el usuario autenticado
+        $sesion = Sesiones::firstOrCreate(
+            ['id_usuario' => auth()->id()],
+            [
+                'tiempo' => now(),
+                'duracion_sesion' => 0,
+                'intentos' => 0,
+                'errores' => 0,
+                'puntos' => 0,
+                'ayuda' => 0,
+                'nivelCompletado' => 0
+            ]
+        );
+
+        // Actualizar con los datos acumulados de los 3 juegos
+        $sesion->update([
+            'duracion_sesion' => $request->tiempo_total ?? 0,
+            'intentos' => $request->intentos_total ?? 0,
+            'errores' => $request->errores_total ?? 0,
+            'puntos' => $request->puntos_total ?? 0,
+            'ayuda' => $request->ayuda_total ?? 0,
+            'nivelCompletado' => $request->juegos_completados ?? 0
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Sesión completa guardada correctamente']);
     }
 }

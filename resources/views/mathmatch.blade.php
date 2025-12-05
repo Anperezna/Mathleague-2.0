@@ -139,9 +139,7 @@ function startGame() {
 }
 
 function resetToMenu() {
-    document.getElementById('game-over-modal').classList.add('hidden');
-    document.getElementById('gameScreen').classList.add('hidden');
-    document.getElementById('menuScreen').classList.remove('hidden');
+    window.location.href = '{{ route('juegos') }}';
 }
 </script>
 @endsection
