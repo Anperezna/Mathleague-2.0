@@ -10,6 +10,7 @@ use App\Http\Controllers\CortacespedController;
 use App\Http\Controllers\JuegosSesionController;
 use App\Http\Controllers\JuegosController;
 use App\Http\Controllers\RankingController;
+use App\Http\Controllers\UsuarioController;
 
 Route::get('/', function () {
     return redirect()->route('register');
@@ -35,9 +36,7 @@ Route::get('/api/cortacesped/ranking', [CortacespedController::class, 'obtenerRa
 
 Route::get('/entrevista', [JuegosController::class, 'entrevista'])->name('entrevista');
 
-Route::get('/perfil', function () {
-    return view('perfil');
-})->name('perfil');
+Route::get('/perfil', [UsuarioController::class, 'perfil'])->name('perfil');
 
 Route::get('/juegos', [JuegosController::class, 'index'])->name('juegos');
 

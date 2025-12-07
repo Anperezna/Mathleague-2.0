@@ -23,24 +23,20 @@
 
         <h2 class="text-2xl font-bold mt-8 mb-4 text-white">Estadísticas</h2>
 
-        @php
-            $juegos = [
-                ['title' => 'El Autobús', 'image' => 'img/juegos/mathbus.png'],
-                ['title' => 'Paco y la Cortacésped', 'image' => 'img/juegos/manolo.png'],
-                ['title' => 'Partido de Fútbol', 'image' => 'img/juegos/mathmatch.png'],
-            ];
-        @endphp
-
         <div class="flex gap-x-[5rem] justify-center">
-            @foreach($juegos as $juego)
+            @forelse($juegos as $juego)
                 <x-game-stats-card 
                     :title="$juego['title']"
                     :image="$juego['image']"
+                    :partidas="$juego['partidas']"
+                    :mejorTiempo="$juego['mejorTiempo']"
+                    :aciertos="$juego['aciertos']"
+                    :errores="$juego['errores']"
                 />
-            @endforeach
+            @empty
+                <p class="text-white text-center">No hay estadísticas disponibles. ¡Juega para ver tus resultados!</p>
+            @endforelse
         </div>
     </div>
 </div>
-
-<script src="{{ asset('js/perfil.js') }}"></script>
 @endsection
