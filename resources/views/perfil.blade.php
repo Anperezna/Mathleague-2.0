@@ -11,7 +11,7 @@
 
             <!-- Header del perfil con botón de logout -->
             <div class="flex justify-between items-center mb-4">
-                <x-profile-header :username="auth()->user()->username ?? 'Usuario'" />
+                <x-profile-header :username="session('username', 'Usuario')" />
 
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
