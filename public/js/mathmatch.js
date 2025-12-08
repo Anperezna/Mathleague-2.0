@@ -27,6 +27,7 @@ function inicializarJuego(reiniciarTemporizador = true) {
     }
     
     guardarCookies("intentos", intentos, 1);
+    enviarDatosAlServidor();
     actualizarPantalla();
     mostrarDefensa();
 }
@@ -242,13 +243,24 @@ function finalizarJuego(razon = 'wrong') {
 function mostrarModalGol() {
     document.getElementById('goal-score').textContent = puntuacion;
     document.getElementById('goal-modal').classList.remove('hidden');
-    enviarDatosAlServidor();
     
     setTimeout(() => {
         document.getElementById('goal-modal').classList.add('hidden');
         siguienteRonda();
     }, 2000);
 }
+function startGame() {
+            document.getElementById('menuScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            inicializarJuego();
+        }
+
+function resetToMenu() {
+            document.getElementById('game-over-modal').classList.add('hidden');
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('menuScreen').classList.remove('hidden');
+            window.location.href = '/juegos';
+        }
 
 // Reiniciar juego
 function reiniciarJuego() {
@@ -270,7 +282,7 @@ function enviarDatosAlServidor() {
     
     const datosJuego = {
         tiempo: tiempo,
-        puntos: score,
+        puntos: puntuacion,
         fallos: fallos,
         intentos: intentos,
         numerosCompletados: numerosCompletados,
@@ -307,6 +319,8 @@ function guardarCookies(nombre, valor, dias) {
     fecha.setTime(fecha.getTime() + 1 * 24 * 60 * 60 * 1000); // 1 día
     document.cookie = "mathmatch=" + JSON.stringify(estado) + ";expires=" + fecha.toUTCString() + ";path=/";
 }
+
+
 
 // Leer cookie
 function leerCookie() {
