@@ -1,3 +1,32 @@
+{{--
+/**
+ * Componente: Botón Principal
+ * 
+ * Botón de acción principal con estilo destacado y efectos visuales.
+ * 
+ * Props:
+ * @param string $href URL de destino del enlace
+ * @param string $text Texto a mostrar en el botón
+ * 
+ * Características visuales:
+ * - Gradiente rojo (#ee3b1b) con efecto degradado
+ * - Sombras múltiples para profundidad
+ * - Fuente Lilita One en mayúsculas
+ * - Bordes redondeados (rounded-full)
+ * 
+ * Efectos hover:
+ * - Cambio de gradiente a tonos más claros
+ * - Elevación con translate-y
+ * - Intensificación de sombras
+ * 
+ * Responsividad:
+ * - Ancho completo en móvil
+ * - Ajuste de padding y tamaño de texto
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @props(['href', 'text'])
 
 <a href="{{ $href }}"

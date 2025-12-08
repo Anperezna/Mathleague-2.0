@@ -1,3 +1,27 @@
+{{--
+/**
+ * Componente: Logo Animado
+ * 
+ * Logo principal de Math League con animación de respiración y efectos hover.
+ * 
+ * Props:
+ * @param string $src Ruta de la imagen del logo (default: 'img/logo.png')
+ * @param string $alt Texto alternativo del logo (default: 'Math League Logo')
+ * 
+ * Animaciones:
+ * - logo-breathe: Animación de respiración (4s, infinite)
+ * - Hover: Escala 1.05 y rotación de 5 grados
+ * 
+ * Diseño responsivo:
+ * - Desktop: 450px de ancho
+ * - Tablet (xl): 380px de ancho
+ * - Móvil (md): 260px, centrado, reordenado
+ * - Móvil pequeño (sm): 220px
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @props(['src' => 'img/logo.png', 'alt' => 'Math League Logo'])
 
 <div class="relative flex items-center justify-start flex-none w-[450px]

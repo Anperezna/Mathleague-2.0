@@ -1,3 +1,34 @@
+{{--
+/**
+ * Vista: Juego MathBus
+ * 
+ * Interfaz del juego "El Autobús" donde los jugadores controlan un autobús
+ * para recoger las respuestas correctas a operaciones matemáticas.
+ * 
+ * Mecánicas del juego:
+ * - Control vertical del autobús con flechas ↑ ↓
+ * - Recoger respuestas correctas que se desplazan
+ * - Máximo 3 fallos permitidos
+ * - Dejar pasar una respuesta correcta también cuenta como fallo
+ * - Sistema de puntos por respuestas acertadas
+ * 
+ * Pantallas:
+ * - Menú inicial con instrucciones
+ * - Pantalla de juego con área dinámica
+ * - Modal de game over
+ * 
+ * @extends layouts.app
+ * @section content
+ * 
+ * @param Collection $preguntas Preguntas matemáticas del juego
+ * 
+ * @uses public/js/mathbus.js - Lógica del juego
+ * @uses PreguntasController::mathbus - Carga de preguntas
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @extends('layouts.app')
 
 @section('content')

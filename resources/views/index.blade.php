@@ -1,3 +1,27 @@
+{{--
+/**
+ * Vista: Página Principal
+ * 
+ * Página de inicio de Math League que muestra la narrativa del juego
+ * y el logo animado principal.
+ * 
+ * Elementos:
+ * - Navbar transparente
+ * - Componente de texto narrativo (x-texto-index)
+ * - Logo animado con efectos de respiración (x-animated-logo)
+ * 
+ * Estilos personalizados:
+ * - Animación glow-pulse para efectos de brillo
+ * - Animación logo-breathe para efecto de respiración del logo
+ * 
+ * @extends layouts.app
+ * @section content
+ * @push styles
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @extends('layouts.app')
 
 @push('styles')

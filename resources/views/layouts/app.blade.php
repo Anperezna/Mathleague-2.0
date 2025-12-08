@@ -1,3 +1,26 @@
+{{--
+/**
+ * Layout: Aplicación Principal
+ * 
+ * Plantilla base para todas las vistas de Math League.
+ * 
+ * Configuración:
+ * - Meta tags para responsividad y CSRF
+ * - Fuente personalizada Lilita One de Google Fonts
+ * - TailwindCSS CDN con configuración personalizada
+ * - Stack de estilos personalizados
+ * 
+ * Variables:
+ * @param string $title Título de la página (default: 'Math League')
+ * 
+ * Secciones:
+ * @yield content - Contenido principal de cada vista
+ * @stack styles - Estilos adicionales personalizados
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 

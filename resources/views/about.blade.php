@@ -1,3 +1,20 @@
+{{--
+/**
+ * Vista: Acerca de Nosotros
+ * 
+ * Muestra información sobre el equipo de desarrollo de Math League.
+ * Presenta tres tarjetas de perfil con información de los desarrolladores:
+ * - Albert Canovas (Frontend)
+ * - Ángel Pérez (Frontend)
+ * - Dani (Frontend)
+ * 
+ * @extends layouts.app
+ * @section content
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @extends('layouts.app')
 
 @section('content')

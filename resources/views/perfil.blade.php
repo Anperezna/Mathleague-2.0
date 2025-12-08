@@ -1,3 +1,35 @@
+{{--
+/**
+ * Vista: Perfil de Usuario
+ * 
+ * Pantalla de perfil que muestra las estadísticas de juego del usuario.
+ * 
+ * Información mostrada:
+ * - Nombre de usuario
+ * - Botón de cierre de sesión
+ * - Tarjetas de estadísticas por juego:
+ *   * Partidas jugadas
+ *   * Mejor tiempo
+ *   * Aciertos
+ *   * Errores
+ * 
+ * Componentes:
+ * - x-navbar: Navegación
+ * - x-profile-header: Cabecera de perfil
+ * - x-game-stats-card: Tarjeta de estadísticas por juego
+ * 
+ * @extends layouts.app
+ * @section content
+ * 
+ * @param array $juegos Estadísticas de todos los juegos
+ * @param Usuario $usuario Información del usuario (opcional)
+ * 
+ * @uses UsuarioController::perfil - Obtención de estadísticas
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @extends('layouts.app')
 
 @section('content')

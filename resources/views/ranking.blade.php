@@ -1,3 +1,34 @@
+{{--
+/**
+ * Vista: Ranking Global
+ * 
+ * Muestra el ranking de los mejores jugadores de Math League.
+ * 
+ * Funcionalidades:
+ * - Ranking global de todos los juegos
+ * - Filtros por juego específico (MathBus, Cortacésped, MathMatch)
+ * - Top 10 jugadores con puntuaciones
+ * - Destacado visual para el usuario actual
+ * - Sistema de medallas para top 3
+ * 
+ * Visualización:
+ * - Medallas oro, plata y bronce para top 3
+ * - Destaque especial para el usuario actual
+ * - Información de puntuación, nivel y tiempo
+ * 
+ * @extends layouts.app
+ * @section content
+ * 
+ * @param int|null $idJuego ID del juego filtrado (null para todos)
+ * @param Collection $ranking Datos del ranking
+ * @param int|null $userId ID del usuario actual
+ * 
+ * @uses RankingController::index - Obtención de datos de ranking
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @extends('layouts.app')
 
 @section('content')

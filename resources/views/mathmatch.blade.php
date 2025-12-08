@@ -1,3 +1,33 @@
+{{--
+/**
+ * Vista: Juego MathMatch
+ * 
+ * Interfaz del juego "Partido de Fútbol" donde los jugadores factorizan
+ * números primos para superar defensas y marcar goles mediante penaltis.
+ * 
+ * Mecánicas del juego:
+ * - Factorización usando siempre el divisor más pequeño (primo)
+ * - 5 defensas a superar por número
+ * - Penalti al completar la factorización
+ * - +1 punto por defensa, +5 puntos por gol
+ * - Pierde si elige divisor incorrecto o portero para el tiro
+ * 
+ * Pantallas:
+ * - Menú inicial con instrucciones
+ * - Pantalla de juego con defensas
+ * - Pantalla de penalti
+ * - Modales de gol y game over
+ * 
+ * @extends layouts.app
+ * @section content
+ * 
+ * @uses public/js/mathmatch.js - Lógica del juego
+ * @uses MathmatchController - Gestión de sesiones
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @extends('layouts.app')
 @section('content')
     <meta name="csrf-token" content="{{ csrf_token() }}">

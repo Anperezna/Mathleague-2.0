@@ -1,3 +1,34 @@
+{{--
+/**
+ * Componente: Tarjeta de Estadísticas de Juego
+ * 
+ * Muestra las estadísticas de un juego específico del usuario.
+ * 
+ * Props:
+ * @param string $title Nombre del juego
+ * @param string $image Ruta de la imagen del juego
+ * @param int $partidas Número de partidas jugadas (default: 0)
+ * @param string $mejorTiempo Mejor tiempo en formato MM:SS (default: '--:--')
+ * @param int $aciertos Total de aciertos (default: 0)
+ * @param int $errores Total de errores (default: 0)
+ * @param string $width Ancho de la tarjeta (default: '550px')
+ * 
+ * Estadísticas mostradas:
+ * - Partidas: Color rojo (#ee3b1b)
+ * - Mejor tiempo: Color rojo (#ee3b1b)
+ * - Aciertos: Color verde (green-600)
+ * - Errores: Color rojo (red-600)
+ * 
+ * Efectos visuales:
+ * - Hover con sombra expandida
+ * - Escala al pasar el ratón
+ * - Borde animado en color rojo
+ * - Zoom en imagen
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @props([
     'title',
     'image',

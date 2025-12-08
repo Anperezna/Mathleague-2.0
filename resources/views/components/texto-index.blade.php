@@ -1,3 +1,29 @@
+{{--
+/**
+ * Componente: Texto de Presentación Principal
+ * 
+ * Narrativa de bienvenida que explica la historia y concepto de Math League.
+ * 
+ * Contenido:
+ * - Título principal "Math League" con fuente Lilita One
+ * - Tres párrafos narrativos explicando la temática del juego:
+ *   1. Presentación del concepto (matemáticas + fútbol)
+ *   2. Descripción de las etapas del juego
+ *   3. Llamada a la acción
+ * - Botón de acción "Jugar Ahora"
+ * 
+ * Estilos destacados:
+ * - Título con sombras y efectos 3D
+ * - Texto blanco con sombras para legibilidad sobre fondo
+ * - Diseño totalmente responsivo
+ * - Gradientes y efectos hover en botón
+ * 
+ * @uses x-primary-button Botón de acción principal
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 <div class="flex-[1.5] max-md:max-w-full">
 
     <!-- HERO TITLE -->

@@ -1,3 +1,27 @@
+{{--
+/**
+ * Vista: Juego Cortacésped
+ * 
+ * Interfaz del juego "Paco y la Cortacésped" donde los jugadores controlan
+ * a Paco para cortar césped mientras resuelven operaciones matemáticas.
+ * 
+ * Características:
+ * - Control con flechas direccionales
+ * - Sistema de bidones con respuestas
+ * - Límite de tiempo de 60 segundos
+ * - Máximo 3 errores permitidos
+ * - Requiere 6 aciertos para completar
+ * 
+ * @extends layouts.app
+ * @section content
+ * 
+ * @uses public/js/cortacesped.js - Lógica del juego
+ * @uses CortacespedController - Gestión de resultados y ranking
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @extends('layouts.app')
 
 @section('content')

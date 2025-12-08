@@ -1,3 +1,17 @@
+{{--
+/**
+ * Vista: Bienvenida (Laravel Default)
+ * 
+ * Página de bienvenida por defecto de Laravel.
+ * Incluye enlaces de navegación a login y registro.
+ * 
+ * Nota: Esta vista está siendo utilizada como plantilla base de Laravel
+ * pero la aplicación redirige directamente a /register desde la ruta raíz.
+ * 
+ * @author Laravel Framework
+ * @version Laravel 11.x
+ */
+--}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

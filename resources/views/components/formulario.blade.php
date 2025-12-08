@@ -1,3 +1,35 @@
+{{--
+/**
+ * Componente: Formulario Dinámico
+ * 
+ * Componente que renderiza formularios de login o registro basado en la ruta actual.
+ * 
+ * Props:
+ * @param string $flexDirection Dirección flex (default: 'flex-col')
+ * @param string $alignItems Alineación de items (default: 'items-start')
+ * @param string $justifyContent Justificación de contenido (default: 'justify-start')
+ * @param string $width Ancho del formulario (default: 'w-[450px]')
+ * @param string $height Altura del formulario (default: 'h-auto')
+ * @param string $bg_color Color de fondo con blur (default: 'bg-white/70 backdrop-blur-lg')
+ * @param string $border_color Color del borde (default: 'border-white/30')
+ * @param string $text_size Tamaño del texto del título (default: 'text-[32px]')
+ * 
+ * Formularios:
+ * - Login: username, contraseña, confirmación
+ * - Registro: username, email, contraseña, confirmación
+ * 
+ * Validaciones:
+ * - Todos los campos requeridos
+ * - Validación de email en registro
+ * - Confirmación de contraseña
+ * 
+ * @uses x-input Componente de input reutilizable
+ * @uses x-botones Componente de botón
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @props([
     'flexDirection' => 'flex-col',
     'alignItems' => 'items-start',

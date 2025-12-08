@@ -1,3 +1,30 @@
+{{--
+/**
+ * Componente: Galería de Juegos
+ * 
+ * Muestra la galería de juegos con sistema de desbloqueo progresivo.
+ * 
+ * Props:
+ * @param array $juegosCompletados IDs de juegos completados por el usuario (default: [])
+ * @param array $juegos Lista de juegos disponibles con estructura:
+ *   - idJuego: ID único del juego
+ *   - ruta: Nombre de la ruta Laravel
+ *   - fondos: Nombre del archivo de imagen
+ * 
+ * Lógica de desbloqueo:
+ * - El primer juego (idJuego == 1) siempre está desbloqueado
+ * - Cada juego se desbloquea al completar el anterior
+ * - Juegos bloqueados aparecen en escala de grises con candado
+ * 
+ * Organización:
+ * - Máximo 3 juegos por fila
+ * - Diseño responsivo con tamaños adaptativos
+ * - Efectos hover solo en juegos desbloqueados
+ * 
+ * @author Math League Team
+ * @version 1.0.0
+ */
+--}}
 @props(['juegosCompletados' => [],
          'juegos' => []])
 
