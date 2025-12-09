@@ -24,7 +24,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="flex items-center justify-center align-center min-h-screen bg-[url('/img/fondo.png')] bg-cover bg-center">
+    <div class="flex items-center justify-center align-center min-h-screen bg-[url('https://anperezna.tech/public/img/fondo.png')] bg-cover bg-center">
         <x-formulario>
         </x-formulario>
     </div>
